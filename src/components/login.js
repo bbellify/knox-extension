@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Urbit from "@urbit/http-api";
 
+document.getElementById("password");
+
 export function Login() {
   const navigate = useNavigate();
   const [error, setError] = useState(false);
@@ -19,8 +21,9 @@ export function Login() {
     });
   }
 
-  async function connect(e) {
-    e.preventDefault();
+  //   const sse = new EventSource("http://localhost:80");
+
+  async function connect() {
     console.log("connect click");
     window.api = await Urbit.authenticate({
       //   ship: prepShipName(login.ship).trim(),
@@ -35,6 +38,7 @@ export function Login() {
       .then((res) => {
         // how to handle this? the res isn't what I want, I want the SSE
         console.log("res", res);
+        window.api.poke();
       })
       .catch(() => setError(true));
   }
