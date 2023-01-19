@@ -4,11 +4,12 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
-  entry: "./src/index.js",
-  output: {
-    path: path.resolve(__dirname, "dist"),
-    filename: "[name].js",
+  entry: {
+    popup: path.join(__dirname, "src/index.js"),
+    content: path.join(__dirname, "src/contentScript.js"),
+    background: path.join(__dirname, "src/background.js"),
   },
+  output: { path: path.join(__dirname, "dist"), filename: "[name].js" },
   mode: "development",
   devtool: "inline-source-map",
   module: {
