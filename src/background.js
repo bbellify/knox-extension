@@ -7,7 +7,6 @@ console.log("in background");
 async function init() {
   const state = useStore.getState();
   await state.init();
-  console.log("state", state);
   storageListener();
   messageListener();
   // extensionListener();
@@ -16,15 +15,20 @@ async function init() {
 init();
 
 function storageListener() {
-  chrome.storage.onChanged.addListener(function (changes, namespace) {
+  chrome.storage.onChanged.addListener(function (changes) {
     console.log("in storage change", changes);
   });
 }
 
 function messageListener() {
+  // request = object sent
   chrome.runtime.onMessage.addListener(function (request) {
-    // request = object sent
-    // if (request.type === "auth") loginToShip();
+    console.log("request", request);
+    const state = useStore.getState();
+    if (request.type === "setUrl") {
+      console.log("in seturl", request.url);
+      state.setUrl(request.url);
+    }
     if (request.type === "store") {
       return setStorage(request.item);
     }
@@ -32,6 +36,9 @@ function messageListener() {
       getStorage(request.key).then((res) =>
         console.log("res in test get", res)
       );
+    }
+    if (request.type === "logUrl") {
+      console.log("state in test log", state);
     }
   });
 }

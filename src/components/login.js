@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Urbit from "@urbit/http-api";
+import { useStore } from "../store";
 
-// const sse = new EventSource("http://localhost/*/");
+let sse;
+
+// = new EventSource("http://localhost:80/~/login");
 // console.log("sse", sse);
 // sse.onmessage = (message) => {
 //   console.log("message", message);
@@ -24,6 +27,17 @@ export function Login() {
     code: "",
   });
 
+  const state = useStore.getState();
+
+  function sendMessage(message) {
+    //eslint-disable-next-line
+    chrome.runtime.sendMessage(message);
+  }
+
+  function prepShipName(ship) {
+    return ship.split("")[0] === "~" ? ship.split("").slice(1).join("") : ship;
+  }
+
   function handleInput(e) {
     const name = e.target.name;
     setLogin({
@@ -33,8 +47,7 @@ export function Login() {
   }
 
   async function connect() {
-    console.log("connect click");
-    window.api = await Urbit.authenticate({
+    await Urbit.authenticate({
       //   ship: prepShipName(login.ship).trim(),
       //   url: login.url.trim(),
       //   code: login.code.trim(),
@@ -45,20 +58,18 @@ export function Login() {
       verbose: true,
     })
       .then((res) => {
-        // how to handle this? the res isn't what I want, I want the SSE
-        console.log("res", res);
-        sendMessage(res.uid);
+        window.api = res;
       })
       .catch(() => setError(true));
   }
 
-  function prepShipName(ship) {
-    return ship.split("")[0] === "~" ? ship.split("").slice(1).join("") : ship;
-  }
-
-  function sendMessage(message) {
-    //eslint-disable-next-line
-    chrome.runtime.sendMessage(message);
+  function testScry() {
+    window.api
+      .scry({
+        app: "knox",
+        path: "/vault",
+      })
+      .then((res) => console.log("scry res", res));
   }
 
   return (
@@ -75,6 +86,7 @@ export function Login() {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          marginTop: "20px",
         }}
       >
         <button style={{ width: "65%" }} onClick={connect}>
@@ -97,6 +109,12 @@ export function Login() {
         >
           test get storage
         </button>
+        <button
+          style={{ width: "65%" }}
+          onClick={() => sendMessage({ type: "logUrl" })}
+        >
+          test get state
+        </button>
         <button style={{ width: "65%" }} onClick={() => sendMessage("auth")}>
           message
         </button>
@@ -105,6 +123,15 @@ export function Login() {
           onClick={() => sendMessage({ type: "auth", url: "localhost:80" })}
         >
           auth
+        </button>
+        <button
+          style={{ width: "65%" }}
+          onClick={() => sendMessage({ type: "setUrl", url: login.url })}
+        >
+          test set url
+        </button>
+        <button style={{ width: "65%" }} onClick={testScry}>
+          test scry
         </button>
       </div>
       {error && <p style={{ color: "red" }}>something went wrong</p>}
