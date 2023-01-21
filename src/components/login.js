@@ -1,22 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Urbit from "@urbit/http-api";
-import { useStore } from "../store";
 
-let sse;
+import { sendMessage } from "../utils";
 
-// = new EventSource("http://localhost:80/~/login");
+// const sse = new EventSource("http://localhost:80/~/login");
 // console.log("sse", sse);
 // sse.onmessage = (message) => {
 //   console.log("message", message);
 // };
-
-// window.api
-//   .scry({
-//     app: "knox",
-//     path: "/vault",
-//   })
-//   .then((res) => console.log("scry res", res));
 
 export function Login() {
   const navigate = useNavigate();
@@ -26,13 +18,6 @@ export function Login() {
     url: "",
     code: "",
   });
-
-  const state = useStore.getState();
-
-  function sendMessage(message) {
-    //eslint-disable-next-line
-    chrome.runtime.sendMessage(message);
-  }
 
   function prepShipName(ship) {
     return ship.split("")[0] === "~" ? ship.split("").slice(1).join("") : ship;
@@ -59,17 +44,16 @@ export function Login() {
     })
       .then((res) => {
         window.api = res;
+        // sendMessage({ type: "setAuth", auth: true });
+        console.log("res", res);
+        sendMessage({
+          type: "setApi",
+          url: res.url,
+          ship: res.ship,
+          code: res.code,
+        });
       })
       .catch(() => setError(true));
-  }
-
-  function testScry() {
-    window.api
-      .scry({
-        app: "knox",
-        path: "/vault",
-      })
-      .then((res) => console.log("scry res", res));
   }
 
   return (
@@ -96,7 +80,7 @@ export function Login() {
           style={{ width: "65%" }}
           onClick={() =>
             sendMessage({
-              type: "store",
+              type: "setStore",
               item: { key: Math.random() },
             })
           }
@@ -105,24 +89,23 @@ export function Login() {
         </button>
         <button
           style={{ width: "65%" }}
-          onClick={() => sendMessage({ type: "getStore", key: "key" })}
+          onClick={() =>
+            sendMessage({ type: "getStore", key: ["key", "auth"] })
+          }
         >
           test get storage
         </button>
         <button
           style={{ width: "65%" }}
-          onClick={() => sendMessage({ type: "logUrl" })}
+          onClick={() => sendMessage({ type: "logState" })}
         >
           test get state
         </button>
-        <button style={{ width: "65%" }} onClick={() => sendMessage("auth")}>
-          message
-        </button>
         <button
           style={{ width: "65%" }}
-          onClick={() => sendMessage({ type: "auth", url: "localhost:80" })}
+          onClick={() => sendMessage({ type: "testScry" })}
         >
-          auth
+          test scry
         </button>
         <button
           style={{ width: "65%" }}
@@ -130,8 +113,19 @@ export function Login() {
         >
           test set url
         </button>
-        <button style={{ width: "65%" }} onClick={testScry}>
-          test scry
+        <button
+          style={{ width: "65%" }}
+          onClick={() => sendMessage({ type: "setAuth" })}
+        >
+          test set auth
+        </button>
+        <button
+          style={{ width: "65%" }}
+          onClick={() =>
+            sendMessage({ type: "setTest", message: Math.random() })
+          }
+        >
+          test set state
         </button>
       </div>
       {error && <p style={{ color: "red" }}>something went wrong</p>}
