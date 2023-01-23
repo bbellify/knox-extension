@@ -4,38 +4,42 @@ import { setStorage, getStorage } from "./storage";
 import { setBadge, clearBadge } from "./utils";
 console.log("in background");
 
-async function init() {
+chrome.action.setTitle({ title: "knox - your web2 password vault" });
+
+function init() {
   const state = useStore.getState();
-  await state.init();
+  state.init();
   storageListener();
   messageListener();
   // clickListener();
   // extensionListener();
   // hotkeyListener();
 
-  if (!state.auth) {
-    setBadge();
-    setStorage({ auth: false });
-  }
+  getStorage(["auth"]).then((res) => {
+    if (!res.auth) setBadge();
+  });
 }
 init();
 
 function storageListener() {
-  chrome.storage.onChanged.addListener(function (changes) {
-    console.log("in storage change", changes);
+  chrome.storage.onChanged.addListener(async function (changes) {
     const state = useStore.getState();
+    const vault = await getStorage(["vault"]);
     if (changes.auth && changes.auth.newValue === true) {
       clearBadge();
-      state.api
-        .scry({
-          app: "knox",
-          path: "/vault",
-        })
-        .then((res) => console.log("res in storage", res));
+      if (!vault.length && state.api) {
+        return state.api
+          .scry({
+            app: "knox",
+            path: "/vault",
+          })
+          .then((res) => console.log("res in storage", res));
+      }
     }
     if (changes.auth && changes.auth.newValue === false) {
-      setBadge();
+      return setBadge();
     }
+    if (changes.vault) return state.setVault(changes.vault.newValue);
   });
 }
 
@@ -85,7 +89,11 @@ function messageListener() {
             app: "knox",
             path: "/vault",
           })
-          .then((res) => state.setVault(res.vault));
+          .then((res) => setStorage({ vault: res.vault }));
+        break;
+      }
+      case "setError": {
+        state.setError("test error");
         break;
       }
       default:
@@ -94,32 +102,35 @@ function messageListener() {
   });
 }
 
+// refrence - I might want both activated and updated?
 chrome.tabs.onActivated.addListener((tab) => {
   chrome.tabs.get(tab.tabId, (current_tab_info) => {
-    console.log("current tab info activated", current_tab_info);
     if (current_tab_info.status === "complete") {
-      console.log("in complete in activated");
-      chrome.scripting.executeScript({
-        files: ["content.js"],
-        target: { tabId: tab.tabId },
+      // const state = useStore.getState();
+      getStorage(["vault"]).then((vault) => {
+        console.log("vault in bg", vault);
+        chrome.scripting.executeScript({
+          files: ["content.js"],
+          target: { tabId: tab.tabId },
+        });
+        chrome.tabs.sendMessage(tab.tabId, { type: "content", vault });
       });
     }
   });
 });
 
-chrome.tabs.onUpdated.addListener((tab) => {
-  console.log("tab in updated", tab);
-  // console.log("changeInfo in updated", changeInfo);
-  chrome.tabs.get(tab, (current_tab_info) => {
-    console.log("tab info in updated/get", current_tab_info);
-    if (current_tab_info.status === "complete") {
-      // if (/^https:\/\/www\.google/.test(current_tab_info.url)) {
-      console.log("in scripting");
-      chrome.scripting.executeScript({
-        files: ["content.js"],
-        target: { tabId: tab },
-      });
-      // }
-    }
-  });
-});
+// reference
+// chrome.tabs.onUpdated.addListener((tab) => {
+//   chrome.tabs.get(tab, async (current_tab_info) => {
+//     if (current_tab_info.status === "complete") {
+//       const state = useStore.getState();
+//       const vault = await getStorage["vault"];
+//       console.log("vault in bg", vault);
+//       chrome.scripting.executeScript({
+//         files: ["content.js"],
+//         target: { tabId: tab },
+//       });
+//       chrome.tabs.sendMessage(tab, { vault: vault });
+//     }
+//   });
+// });

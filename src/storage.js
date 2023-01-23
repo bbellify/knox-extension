@@ -1,5 +1,4 @@
 /* eslint-disable no-undef */
-
 export const getStorage = (key) =>
   new Promise((res, rej) =>
     chrome.storage.local.get(key, (result) => {

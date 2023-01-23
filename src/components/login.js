@@ -90,7 +90,7 @@ export function Login() {
         <button
           style={{ width: "65%" }}
           onClick={() =>
-            sendMessage({ type: "getStore", key: ["key", "auth"] })
+            sendMessage({ type: "getStore", key: ["key", "auth", "vault"] })
           }
         >
           test get storage
@@ -126,6 +126,12 @@ export function Login() {
           }
         >
           test set state
+        </button>
+        <button
+          style={{ width: "65%" }}
+          onClick={() => sendMessage({ type: "setError" })}
+        >
+          test set error
         </button>
       </div>
       {error && <p style={{ color: "red" }}>something went wrong</p>}
