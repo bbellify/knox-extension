@@ -1,10 +1,14 @@
+import { createPopper } from "@popperjs/core";
 import { aesDecrypt } from "./utils";
 const logIns = ["username", "email"];
 const passes = ["password"];
 console.log("in content");
 
 const location = window.location.toString();
-console.log("location", location);
+
+document.addEventListener("click", (e) => {
+  if (e.target.nodeName !== "INPUT") clearPopup();
+});
 
 let allInputs = document.querySelectorAll("input");
 let username;
@@ -25,17 +29,22 @@ chrome.runtime.onMessage.addListener((message) => {
         location.includes(aesDecrypt(entry.website, "test"))
       );
       if (entry) {
-        console.log(
-          "entry:",
-          aesDecrypt(entry.website, "test"),
-          aesDecrypt(entry.username, "test"),
-          aesDecrypt(entry.password, "test")
+        const decryptedEntry = {
+          website: aesDecrypt(entry.website, "test"),
+          username: aesDecrypt(entry.username, "test"),
+          password: aesDecrypt(entry.password, "test"),
+        };
+        console.log("decryptedEntry", decryptedEntry);
+        // username.value = decryptedEntry.username;
+        // pword.value = decryptedEntry.password;
+        username.addEventListener("mousedown", () =>
+          addPopup(decryptedEntry.username, decryptedEntry.password)
         );
-        username.value = aesDecrypt(entry.username, "test");
-        pword.value = aesDecrypt(entry.password, "test");
+        pword.addEventListener("mousedown", () => entryToolTip("password"));
       } else {
         // handle asking to save password here - vault but no entry
-        console.log("no entry");
+        username.addEventListener("mousedown", () => noEntryToolTip());
+        pword.addEventListener("mousedown", () => noEntryToolTip());
       }
     } else {
       // handle auth or scry here - no vault
@@ -44,27 +53,50 @@ chrome.runtime.onMessage.addListener((message) => {
   }
 });
 
-// reference
-// let allInputs = document.querySelectorAll("input");
-// // let pword = allInputs[0];
-// console.log("inputs", allInputs);
-// // console.log("pword", pword);
-// let username;
-// let pword;
-// for (let i = 0; i < allInputs.length; i++) {
-//   if (logIns.includes(allInputs[i].name)) username = allInputs[i];
-//   if (allInputs[i].type === "password" || passes.includes(allInputs[i].name))
-//     pword = allInputs[i];
-// }
+function entryToolTip(clicked) {
+  console.log(`mousedown in ${clicked}`);
+}
 
-// console.log("username", username);
-// console.log("pword", pword);
+function noEntryToolTip() {
+  console.log("no entry");
+}
 
-// if (username) {
-//   //   username.select();
-//   //   username.setAttribute("value", "hi");
-//   username.value = "username";
-// }
-// if (pword) pword.value = "username";
+function addPopup(name, pass) {
+  const wrapper = document.createElement("div");
+  const usernameP = document.createElement("p");
+  const passwordP = document.createElement("p");
+  usernameP.textContent = name;
+  usernameP.style.color = "white";
+  usernameP.margin = "0";
+  wrapper.id = "popup";
+  usernameP.id = "popup-username";
 
-// pword.addEventListener("mousedown", console.log("pword click"));
+  // wrapper.style.display = "hidden";
+  wrapper.style.borderRadius = "4px";
+  wrapper.style.background = "black";
+  wrapper.style.padding = "0px 10px";
+
+  wrapper.appendChild(usernameP);
+  // wrapper.appendChild(passwordP);
+  wrapper.addEventListener("click", () => {
+    username.value = name;
+    pword.value = pass;
+  });
+  document.body.appendChild(wrapper);
+
+  createPopper(username, wrapper, {
+    placement: "bottom",
+    modifiers: {
+      name: "offset",
+      options: {
+        offset: [0, 10],
+      },
+    },
+  });
+}
+
+function clearPopup() {
+  const popup = document.getElementById("popup");
+  if (popup) return popup.remove();
+  return;
+}

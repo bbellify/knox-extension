@@ -16,6 +16,6 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Open"
+    "default_title": "knox - your web2 password vault"
   }
 }

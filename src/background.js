@@ -4,11 +4,9 @@ import { setStorage, getStorage } from "./storage";
 import { setBadge, clearBadge } from "./utils";
 console.log("in background");
 
-chrome.action.setTitle({ title: "knox - your web2 password vault" });
-
-function init() {
+async function init() {
   const state = useStore.getState();
-  state.init();
+  await state.init();
   storageListener();
   messageListener();
   // clickListener();
@@ -120,17 +118,17 @@ chrome.tabs.onActivated.addListener((tab) => {
 });
 
 // reference
-// chrome.tabs.onUpdated.addListener((tab) => {
-//   chrome.tabs.get(tab, async (current_tab_info) => {
-//     if (current_tab_info.status === "complete") {
-//       const state = useStore.getState();
-//       const vault = await getStorage["vault"];
-//       console.log("vault in bg", vault);
-//       chrome.scripting.executeScript({
-//         files: ["content.js"],
-//         target: { tabId: tab },
-//       });
-//       chrome.tabs.sendMessage(tab, { vault: vault });
-//     }
-//   });
-// });
+chrome.tabs.onUpdated.addListener((tab) => {
+  chrome.tabs.get(tab, async (current_tab_info) => {
+    if (current_tab_info.status === "complete") {
+      // const state = useStore.getState();
+      const vault = await getStorage["vault"];
+      console.log("vault in bg", vault);
+      chrome.scripting.executeScript({
+        files: ["content.js"],
+        target: { tabId: tab },
+      });
+      chrome.tabs.sendMessage(tab, { vault: vault });
+    }
+  });
+});
