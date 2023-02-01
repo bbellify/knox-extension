@@ -1,13 +1,14 @@
-import { createPopper } from "@popperjs/core";
 import { aesDecrypt } from "./utils";
+import { addTooltipCSS, addTooltip, clearTooltip } from "./tooltip";
 const logIns = ["username", "email"];
 const passes = ["password"];
 console.log("in content");
 
+addTooltipCSS();
 const location = window.location.toString();
 
 document.addEventListener("click", (e) => {
-  if (e.target.nodeName !== "INPUT") clearPopup();
+  if (e.target.nodeName !== "INPUT") clearTooltip();
 });
 
 let allInputs = document.querySelectorAll("input");
@@ -35,10 +36,13 @@ chrome.runtime.onMessage.addListener((message) => {
           password: aesDecrypt(entry.password, "test"),
         };
         console.log("decryptedEntry", decryptedEntry);
-        // username.value = decryptedEntry.username;
-        // pword.value = decryptedEntry.password;
         username.addEventListener("mousedown", () =>
-          addPopup(decryptedEntry.username, decryptedEntry.password)
+          addTooltip(
+            decryptedEntry.username,
+            decryptedEntry.password,
+            username,
+            pword
+          )
         );
         pword.addEventListener("mousedown", () => entryToolTip("password"));
       } else {
@@ -59,44 +63,4 @@ function entryToolTip(clicked) {
 
 function noEntryToolTip() {
   console.log("no entry");
-}
-
-function addPopup(name, pass) {
-  const wrapper = document.createElement("div");
-  const usernameP = document.createElement("p");
-  const passwordP = document.createElement("p");
-  usernameP.textContent = name;
-  usernameP.style.color = "white";
-  usernameP.margin = "0";
-  wrapper.id = "popup";
-  usernameP.id = "popup-username";
-
-  // wrapper.style.display = "hidden";
-  wrapper.style.borderRadius = "4px";
-  wrapper.style.background = "black";
-  wrapper.style.padding = "0px 10px";
-
-  wrapper.appendChild(usernameP);
-  // wrapper.appendChild(passwordP);
-  wrapper.addEventListener("click", () => {
-    username.value = name;
-    pword.value = pass;
-  });
-  document.body.appendChild(wrapper);
-
-  createPopper(username, wrapper, {
-    placement: "bottom",
-    modifiers: {
-      name: "offset",
-      options: {
-        offset: [0, 10],
-      },
-    },
-  });
-}
-
-function clearPopup() {
-  const popup = document.getElementById("popup");
-  if (popup) return popup.remove();
-  return;
 }
