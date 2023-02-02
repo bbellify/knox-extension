@@ -101,34 +101,38 @@ function messageListener() {
 }
 
 // refrence - I might want both activated and updated?
-chrome.tabs.onActivated.addListener((tab) => {
-  chrome.tabs.get(tab.tabId, (current_tab_info) => {
-    if (current_tab_info.status === "complete") {
-      // const state = useStore.getState();
-      getStorage(["vault"]).then((vault) => {
-        console.log("vault in bg", vault);
-        chrome.scripting.executeScript({
-          files: ["content.js"],
-          target: { tabId: tab.tabId },
-        });
-        chrome.tabs.sendMessage(tab.tabId, { type: "content", vault });
-      });
-    }
-  });
-});
+// chrome.tabs.onActivated.addListener((tab) => {
+//   chrome.tabs.get(tab.tabId, async (current_tab_info) => {
+//     if (current_tab_info.status === "complete") {
+//       const vault = await getStorage(["vault"]);
+//       await chrome.scripting.executeScript({
+//         files: ["content.js"],
+//         target: { tabId: tab.tabId },
+//       });
+//       chrome.tabs.sendMessage(tab.tabId, { type: "content", vault });
+//     }
+//   });
+// });
 
 // reference
 chrome.tabs.onUpdated.addListener((tab) => {
   chrome.tabs.get(tab, async (current_tab_info) => {
+    console.log("tab info", current_tab_info);
     if (current_tab_info.status === "complete") {
-      // const state = useStore.getState();
-      const vault = await getStorage["vault"];
-      console.log("vault in bg", vault);
-      chrome.scripting.executeScript({
+      const vault = await getStorage(["vault"]);
+      await chrome.scripting.executeScript({
         files: ["content.js"],
         target: { tabId: tab },
       });
-      chrome.tabs.sendMessage(tab, { vault: vault });
+      chrome.tabs.sendMessage(tab, { type: "content", vault });
+
+      // getStorage(["vault"]).then((vault) => {
+      //   chrome.scripting.executeScript({
+      //     files: ["content.js"],
+      //     target: { tabId: tab },
+      //   });
+      //   chrome.tabs.sendMessage(tab, { type: "content", vault });
+      // });
     }
   });
 });

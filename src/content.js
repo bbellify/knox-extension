@@ -1,10 +1,9 @@
 import { aesDecrypt } from "./utils";
-import { addTooltipCSS, addTooltip, clearTooltip } from "./tooltip";
+import { addTooltip, clearTooltip } from "./tooltip";
 const logIns = ["username", "email"];
 const passes = ["password"];
 console.log("in content");
 
-addTooltipCSS();
 const location = window.location.toString();
 
 document.addEventListener("click", (e) => {
@@ -26,25 +25,30 @@ chrome.runtime.onMessage.addListener((message) => {
     const { vault } = message.vault;
 
     if (vault.length) {
-      const entry = vault.find((entry) =>
+      const entries = vault.filter((entry) =>
         location.includes(aesDecrypt(entry.website, "test"))
       );
-      if (entry) {
-        const decryptedEntry = {
-          website: aesDecrypt(entry.website, "test"),
-          username: aesDecrypt(entry.username, "test"),
-          password: aesDecrypt(entry.password, "test"),
-        };
-        console.log("decryptedEntry", decryptedEntry);
-        username.addEventListener("mousedown", () =>
-          addTooltip(
-            decryptedEntry.username,
-            decryptedEntry.password,
-            username,
-            pword
-          )
-        );
-        pword.addEventListener("mousedown", () => entryToolTip("password"));
+      if (entries) {
+        let decryptedEntries = [];
+        entries.forEach((entry) => {
+          decryptedEntries.push({
+            website: aesDecrypt(entry.website, "test"),
+            username: aesDecrypt(entry.username, "test"),
+            password: aesDecrypt(entry.password, "test"),
+          });
+        });
+        // const decryptedEntry = {
+        //   website: aesDecrypt(entry.website, "test"),
+        //   username: aesDecrypt(entry.username, "test"),
+        //   password: aesDecrypt(entry.password, "test"),
+        // };
+        // console.log("decryptedEntry", decryptedEntry);
+        if (username)
+          username.addEventListener("mousedown", () =>
+            addTooltip(decryptedEntries, username, pword)
+          );
+        if (pword)
+          pword.addEventListener("mousedown", () => entryToolTip("password"));
       } else {
         // handle asking to save password here - vault but no entry
         username.addEventListener("mousedown", () => noEntryToolTip());
