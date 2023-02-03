@@ -5,7 +5,7 @@ import { getStorage } from "../storage";
 
 import { sendMessage } from "../utils";
 
-export function Setup() {
+export function Connect() {
   chrome.runtime.onMessage.addListener(function (message) {
     if (message.type === "urlStorage") {
       if (!message.message.newValue) return setUrlSet(false);
@@ -26,7 +26,7 @@ export function Setup() {
       if (message.status === "ok") {
         setUrlError("");
         setShipError("");
-        navigate("/");
+        navigate("/secret");
       }
     }
   });
@@ -43,7 +43,7 @@ export function Setup() {
   const [shipError, setShipError] = useState("");
   const [urlForm, setUrlForm] = useState("");
   const [shipForm, setShipForm] = useState({
-    ship: "~",
+    ship: "~bud",
     code: "lathus-worsem-bortem-padmel",
   });
 

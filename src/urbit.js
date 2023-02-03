@@ -31,15 +31,8 @@ export function newApi(url, ship, code) {
 }
 
 export async function scryVault() {
-  console.log("scry in urbit util");
-  Urbit.scry({
-    app: "knox",
-    path: "/vault",
-  }).then((res) => console.log("scry res", res));
-}
-
-export async function testScry() {
-  const { api } = useStore.getState();
+  const state = useStore.getState();
+  const { api } = state;
   // handle error here
   if (!api) {
     console.log("no api");
@@ -51,5 +44,5 @@ export async function testScry() {
       app: "knox",
       path: "/vault",
     })
-    .then((res) => console.log("res in scry test", res));
+    .then((res) => state.setVault(res.vault));
 }

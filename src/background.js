@@ -2,7 +2,7 @@
 import { useStore } from "./store";
 import { setStorage, getStorage } from "./storage";
 import { setBadge, clearBadge, sendMessage } from "./utils";
-import { testScry } from "./urbit";
+import { scryVault } from "./urbit";
 console.log("in background");
 
 async function init() {
@@ -13,38 +13,27 @@ async function init() {
   // clickListener();
   // extensionListener();
   // hotkeyListener();
-
-  // getStorage(["auth"]).then((res) => {
-  // if (!res.auth) {
-  // setBadge()
-  // sendMessage({ type: "nav", to: "/setup" });
-  // }
-  // }
-  // );
-
-  // chrome.runtime.sendMessage({ type: "nav", data: "/setup" });
 }
 init();
 
 function storageListener() {
   chrome.storage.onChanged.addListener(async function (changes) {
-    const state = useStore.getState();
-    const vault = await getStorage(["vault"]);
-    if (changes.auth && changes.auth.newValue === true) {
-      clearBadge();
-      if (!vault.length && state.api) {
-        return state.api
-          .scry({
-            app: "knox",
-            path: "/vault",
-          })
-          .then((res) => console.log("res in storage", res));
-      }
-    }
-    if (changes.auth && changes.auth.newValue === false) {
-      return setBadge();
-    }
-    if (changes.vault) return state.setVault(changes.vault.newValue);
+    // const state = useStore.getState();
+    // if (changes.connected && changes.connected.newValue === true) {
+    //   clearBadge();
+    //   if (!state.vault.length && state.api) {
+    //     return state.api
+    //       .scry({
+    //         app: "knox",
+    //         path: "/vault",
+    //       })
+    //       .then((res) => state.setVault(res));
+    //   }
+    // }
+    // if (changes.connected && changes.connected.newValue === false) {
+    //   return setBadge();
+    // }
+    // if (changes.vault) return state.setVault(changes.vault.newValue);
     if (changes.url) sendMessage({ type: "urlStorage", message: changes.url });
   });
 }
@@ -57,16 +46,19 @@ function messageListener() {
   ) {
     const state = useStore.getState();
 
-    const storage = await getStorage(["auth"]);
-
     switch (message.type) {
+      case "setupStatus": {
+        if (message.status === "ok" && !state.vault) scryVault();
+        break;
+      }
       case "log": {
-        console.log("log message", message.message);
+        console.log("log message", state);
         break;
       }
       case "setUrl": {
         console.log("in seturl", message.url);
         // state.setUrl(message.url);
+        if (!message.url) return setStorage({ url: null });
         setStorage({ url: message.url });
         break;
       }
@@ -84,50 +76,25 @@ function messageListener() {
         console.log("state in test log", state);
         break;
       }
-      case "setTest": {
-        state.setTest(message.message);
-        break;
-      }
-      case "setAuth": {
-        state.setAuth();
-        break;
-      }
       case "setApi": {
-        state.setApi(
-          message.message.url,
-          message.message.ship,
-          message.message.code
-        );
-        break;
-      }
-      case "testScry": {
-        console.log("test scry");
-        state.api
-          .scry({
-            app: "knox",
-            path: "/vault",
-          })
-          .then((res) => setStorage({ vault: res.vault }));
-        break;
-      }
-      case "setError": {
-        state.setError("test error");
-        break;
-      }
-      case "appMount": {
-        sendResponse({ type: "response", data: storage });
-        break;
-      }
-      case "testing": {
-        sendMessage({ type: "testing2" });
+        state.setApi(message.url, message.ship, message.code);
         break;
       }
       case "connectShip": {
         state.connect(message.url, message.ship, message.code);
         break;
       }
-      case "testScry2": {
-        testScry();
+      case "testScry": {
+        scryVault();
+        break;
+      }
+      case "setSecret": {
+        state.setSecret(message.secret);
+        break;
+      }
+      case "getState": {
+        console.log("in get state in bg");
+        sendMessage({ type: "state", state: state });
         break;
       }
       default:
@@ -152,22 +119,15 @@ function messageListener() {
 
 // reference
 chrome.tabs.onUpdated.addListener((tab) => {
+  const state = useStore.getState();
   chrome.tabs.get(tab, async (current_tab_info) => {
     if (current_tab_info.status === "complete") {
-      const vault = await getStorage(["vault"]);
       await chrome.scripting.executeScript({
         files: ["content.js"],
         target: { tabId: tab },
       });
-      chrome.tabs.sendMessage(tab, { type: "content", vault });
-
-      // getStorage(["vault"]).then((vault) => {
-      //   chrome.scripting.executeScript({
-      //     files: ["content.js"],
-      //     target: { tabId: tab },
-      //   });
-      //   chrome.tabs.sendMessage(tab, { type: "content", vault });
-      // });
+      chrome.tabs.sendMessage(tab, { type: "content", vault: state.vault });
+      sendMessage({ type: "state", state: state });
     }
   });
 });

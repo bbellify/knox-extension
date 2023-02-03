@@ -21,16 +21,15 @@ for (let i = 0; i < allInputs.length; i++) {
 
 // eslint-disable-next-line
 chrome.runtime.onMessage.addListener((message) => {
-  if (message.type === "testing2") sendMessage({ message: "hi" });
   if (message.type === "content") {
-    const { vault } = message.vault;
+    console.log("message in content", message);
+    const { vault } = message;
 
-    if (vault.length) {
+    if (vault && vault.length) {
       const entries = vault.filter((entry) =>
         location.includes(aesDecrypt(entry.website, "test"))
       );
       if (entries.length) {
-        // let decryptedEntries = [];
         const decryptedEntries = entries.map((entry) => {
           return {
             website: aesDecrypt(entry.website, "test"),
@@ -38,12 +37,6 @@ chrome.runtime.onMessage.addListener((message) => {
             password: aesDecrypt(entry.password, "test"),
           };
         });
-        // const decryptedEntry = {
-        //   website: aesDecrypt(entry.website, "test"),
-        //   username: aesDecrypt(entry.username, "test"),
-        //   password: aesDecrypt(entry.password, "test"),
-        // };
-        // console.log("decryptedEntry", decryptedEntry);
         if (username)
           username.addEventListener("mousedown", () =>
             addTooltip(decryptedEntries, username, pword)
@@ -51,12 +44,12 @@ chrome.runtime.onMessage.addListener((message) => {
         if (pword)
           pword.addEventListener("mousedown", () => entryToolTip("password"));
       } else {
-        // handle asking to save password here - vault but no entry
+        // TODO: handle asking to save password here - vault but no entry
         username.addEventListener("mousedown", () => noEntryToolTip());
         pword.addEventListener("mousedown", () => noEntryToolTip());
       }
     } else {
-      // handle auth or scry here - no vault
+      // TODO: handle auth or scry here - no vault
       console.log("no vault");
     }
   }
