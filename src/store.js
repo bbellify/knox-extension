@@ -36,6 +36,12 @@ export const useStore = create((set) => ({
     set({ secret: secret });
     sendMessage({ type: "secretSet" });
   },
+  setSuggestion: (suggestion) => {
+    set({ suggestion: suggestion });
+    setTimeout(() => {
+      set({ suggestion: "" });
+    }, 60000);
+  },
   setError: (error) => set({ error: error }),
   setTest: (test) => set({ test: test }),
   connect: async (url, ship, code) => {
@@ -58,14 +64,12 @@ export const useStore = create((set) => ({
     }
   },
   init: async () => {
-    const res = await getStorage(["settings", "url"]);
     set({
       api: "",
-      url: res.url || "",
       secret: "",
       vault: [],
-      settings: res.settings || {},
       error: "",
+      suggestion: "",
     });
   },
 }));

@@ -5,6 +5,7 @@ import { sendMessage } from "./utils";
 import { Home } from "./components/home";
 import { Connect } from "./components/connect";
 import { Secret } from "./components/secret";
+import { Save } from "./components/save";
 
 function App() {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ function App() {
           <Route path={"/"} exact={true} element={<Home />} />
           <Route path={"/connect"} exact={true} element={<Connect />} />
           <Route path={"/secret"} exact={true} element={<Secret />} />
-          <Route path={"/save"} exact={true} element={<p>save</p>} />
+          <Route path={"/save"} exact={true} element={<Save />} />
         </Routes>
       )}
     </div>

@@ -75,7 +75,7 @@ async function messageListener() {
         break;
       }
       case "getState": {
-        console.log("in get state in bg");
+        console.log("state in bg", state);
         sendMessage({ type: "state", state: state });
         break;
       }
@@ -88,7 +88,17 @@ async function messageListener() {
           return sendMessage({ type: "popupNav", message: "/connect" });
         } else if (!state.secret) {
           return sendMessage({ type: "popupNav", message: "/secret" });
+        } else if (state.suggestion) {
+          return sendMessage({ type: "popupNav", message: "/save" });
         } else return sendMessage({ type: "popupNav", message: "/" });
+      }
+      case "setSuggestion": {
+        state.setSuggestion(message.suggestion);
+        break;
+      }
+      case "getSuggestion": {
+        sendMessage({ type: "getSuggestionRes", suggestion: state.suggestion });
+        break;
       }
       default:
         console.log("request", message);

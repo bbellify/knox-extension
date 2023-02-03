@@ -38,6 +38,12 @@ export function Home() {
         >
           test scry
         </button>
+        <button
+          style={{ width: "65%" }}
+          onClick={() => sendMessage({ type: "getState" })}
+        >
+          log state in bg
+        </button>
       </div>
     </>
   );
