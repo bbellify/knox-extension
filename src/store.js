@@ -1,32 +1,22 @@
 import { create } from "zustand";
-import { setStorage, getStorage } from "./storage";
 import { sendMessage } from "./utils";
 import { connectToShip, newApi } from "./urbit";
 import { Urbit } from "@urbit/http-api";
 
 export const useStore = create((set) => ({
   api: "",
-  url: "",
   secret: "",
   vault: [],
   settings: {},
   error: "",
-  setAuth: async () => {
-    const { auth } = await getStorage(["auth"]);
-    set((state) => ({
-      auth: !state.auth,
-    }));
-    setStorage({ auth: !auth });
-  },
+  suggestion: "",
   setApi: (url, ship, code) => {
     if (!url || !ship || !code) {
       // TODO: handle this error somehow
-      setStorage({ connected: false });
       return set({ api: "" });
     }
     const api = new Urbit(url, code);
     api.ship = ship;
-    setStorage({ connected: true });
     set({ api: api });
   },
   setVault: (vault) => {
@@ -38,9 +28,10 @@ export const useStore = create((set) => ({
   },
   setSuggestion: (suggestion) => {
     set({ suggestion: suggestion });
+    // TODO: this timeout could be based on settings
     setTimeout(() => {
       set({ suggestion: "" });
-    }, 60000);
+    }, 30000);
   },
   setError: (error) => set({ error: error }),
   setTest: (test) => set({ test: test }),
@@ -63,7 +54,7 @@ export const useStore = create((set) => ({
       });
     }
   },
-  init: async () => {
+  init: () => {
     set({
       api: "",
       secret: "",

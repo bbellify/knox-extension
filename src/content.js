@@ -4,12 +4,12 @@ const logIns = ["username", "email"];
 const passes = ["password"];
 console.log("in content");
 
-const location = window.location.toString();
-const website = new URL(location).hostname.replace("www.", "");
-
 document.addEventListener("click", (e) => {
   if (e.target.nodeName !== "INPUT") clearTooltip();
 });
+
+const location = window.location.toString();
+const website = new URL(location).hostname.replace("www.", "");
 
 const allInputs = document.querySelectorAll("input");
 const allButtons = document.querySelectorAll("button");
@@ -29,9 +29,8 @@ for (let i = 0; i < allInputs.length; i++) {
 // eslint-disable-next-line
 chrome.runtime.onMessage.addListener(async (message) => {
   if (message.type === "content") {
-    const { vault, secret } = message;
-    // TODO: handle if no secret here
-    if (!secret) return console.log("no secret");
+    const { vault, secret } = message.state;
+    if (!secret) return handleNoSecret();
 
     if (vault && vault.length) {
       const entries = vault.filter((entry) =>
@@ -47,25 +46,24 @@ chrome.runtime.onMessage.addListener(async (message) => {
           };
         });
         if (username)
-          username.addEventListener("mousedown", () =>
+          username.addEventListener("click", () =>
             addTooltip(decryptedEntries, username, pword)
           );
         if (pword)
-          pword.addEventListener("mousedown", () => entryToolTip("password"));
+          pword.addEventListener("click", () => entryToolTip("password"));
       } else {
         handleNoEntry();
         // TODO: remove this, for testing
-        username.addEventListener("mousedown", () => noEntryToolTip());
+        username.addEventListener("click", () => noEntryToolTip());
       }
     } else {
-      // TODO: handle auth or scry here - no vault
-      console.log("no vault");
+      handleNoVault();
     }
   }
 });
 
 function entryToolTip(clicked) {
-  console.log(`mousedown in ${clicked}`);
+  console.log(`click in ${clicked}`);
 }
 
 function noEntryToolTip() {
@@ -85,4 +83,14 @@ function handleNoEntry() {
       },
     });
   });
+}
+
+function handleNoVault() {
+  // TODO: handle auth or scry here - no vault
+  console.log("no vault");
+}
+
+function handleNoSecret() {
+  // TODO: finish this
+  console.log("no secret");
 }

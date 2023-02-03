@@ -16,24 +16,9 @@ async function init() {
 }
 init();
 
+// TODO: do I need this? only thing in storage is url right now. might use for settings
 function storageListener() {
   chrome.storage.onChanged.addListener(async function (changes) {
-    // const state = useStore.getState();
-    // if (changes.connected && changes.connected.newValue === true) {
-    //   clearBadge();
-    //   if (!state.vault.length && state.api) {
-    //     return state.api
-    //       .scry({
-    //         app: "knox",
-    //         path: "/vault",
-    //       })
-    //       .then((res) => state.setVault(res));
-    //   }
-    // }
-    // if (changes.connected && changes.connected.newValue === false) {
-    //   return setBadge();
-    // }
-    // if (changes.vault) return state.setVault(changes.vault.newValue);
     if (changes.url) sendMessage({ type: "urlStorage", message: changes.url });
   });
 }
@@ -53,16 +38,8 @@ async function messageListener() {
         sendMessage({ type: "setupStatus", status: "urlSet" });
         break;
       }
-      case "setApi": {
-        state.setApi(message.url, message.ship, message.code);
-        break;
-      }
       case "connectShip": {
         state.connect(message.url, message.ship, message.code);
-        break;
-      }
-      case "testScry": {
-        scryVault();
         break;
       }
       case "setSecret": {
@@ -72,11 +49,6 @@ async function messageListener() {
       }
       case "getSecret": {
         sendMessage({ type: "getSecretRes", secret: state.secret });
-        break;
-      }
-      case "getState": {
-        console.log("state in bg", state);
-        sendMessage({ type: "state", state: state });
         break;
       }
       case "getNav": {
@@ -98,6 +70,19 @@ async function messageListener() {
       }
       case "getSuggestion": {
         sendMessage({ type: "getSuggestionRes", suggestion: state.suggestion });
+        break;
+      }
+      // TODO: cases below (except default) are only for testing
+      case "setApi": {
+        state.setApi(message.url, message.ship, message.code);
+        break;
+      }
+      case "testScry": {
+        scryVault();
+        break;
+      }
+      case "getState": {
+        console.log("state in bg", state);
         break;
       }
       default:
@@ -131,10 +116,8 @@ chrome.tabs.onUpdated.addListener((tab) => {
       });
       chrome.tabs.sendMessage(tab, {
         type: "content",
-        vault: state.vault,
-        secret: state.secret,
+        state: state,
       });
-      sendMessage({ type: "state", state: state });
     }
   });
 });

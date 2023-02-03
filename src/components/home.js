@@ -24,6 +24,7 @@ export function Home() {
         >
           clear url
         </button>
+        {/* TODO: setApi is for testing, can remove later */}
         <button
           style={{ width: "65%" }}
           onClick={() =>
@@ -32,12 +33,14 @@ export function Home() {
         >
           clear api
         </button>
+        {/* TODO: testScry button only for testing, can remove later */}
         <button
           style={{ width: "65%" }}
           onClick={() => sendMessage({ type: "testScry" })}
         >
           test scry
         </button>
+        {/* TODO: getState button only for testing */}
         <button
           style={{ width: "65%" }}
           onClick={() => sendMessage({ type: "getState" })}
