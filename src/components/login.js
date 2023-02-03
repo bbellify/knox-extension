@@ -1,20 +1,15 @@
+/* eslint-disable no-undef */
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Urbit from "@urbit/http-api";
 
 import { sendMessage } from "../utils";
 
-// const sse = new EventSource("http://localhost:80/~/login");
-// console.log("sse", sse);
-// sse.onmessage = (message) => {
-//   console.log("message", message);
-// };
-
 export function Login() {
   const navigate = useNavigate();
   const [error, setError] = useState(false);
   const [login, setLogin] = useState({
-    ship: "~",
+    ship: "",
     url: "",
     code: "",
   });
@@ -32,32 +27,17 @@ export function Login() {
   }
 
   async function connect() {
-    await Urbit.authenticate({
-      //   ship: prepShipName(login.ship).trim(),
-      //   url: login.url.trim(),
-      //   code: login.code.trim(),
-      // lathus-worsem-bortem-padmel
+    chrome.runtime.sendMessage({
+      type: "connectShip",
       ship: "bud",
-      url: "localhost:80",
       code: "lathus-worsem-bortem-padmel",
-      verbose: true,
-    })
-      .then((res) => {
-        window.api = res;
-        // sendMessage({ type: "setAuth", auth: true });
-        console.log("res", res);
-        sendMessage({
-          type: "setApi",
-          url: res.url,
-          ship: res.ship,
-          code: res.code,
-        });
-      })
-      .catch(() => setError(true));
+      url: "http://localhost:80",
+    });
   }
 
   return (
     <>
+      <button onClick={() => navigate("/setup")}>test to setup</button>
       <p>shippy</p>
       <input name="ship" value={login.ship} onChange={handleInput} />
       <p>password</p>
@@ -90,7 +70,10 @@ export function Login() {
         <button
           style={{ width: "65%" }}
           onClick={() =>
-            sendMessage({ type: "getStore", key: ["key", "auth", "vault"] })
+            sendMessage({
+              type: "getStore",
+              key: ["key", "auth", "vault", "url"],
+            })
           }
         >
           test get storage
@@ -132,6 +115,18 @@ export function Login() {
           onClick={() => sendMessage({ type: "setError" })}
         >
           test set error
+        </button>
+        <button
+          style={{ width: "65%" }}
+          onClick={() => sendMessage({ type: "setError" })}
+        >
+          test send message
+        </button>
+        <button
+          style={{ width: "65%" }}
+          onClick={() => chrome.runtime.sendMessage({ type: "testScry2" })}
+        >
+          test scry2
         </button>
       </div>
       {error && <p style={{ color: "red" }}>something went wrong</p>}

@@ -1,4 +1,4 @@
-import { aesDecrypt } from "./utils";
+import { aesDecrypt, sendMessage } from "./utils";
 import { addTooltip, clearTooltip } from "./tooltip";
 const logIns = ["username", "email"];
 const passes = ["password"];
@@ -21,6 +21,7 @@ for (let i = 0; i < allInputs.length; i++) {
 
 // eslint-disable-next-line
 chrome.runtime.onMessage.addListener((message) => {
+  if (message.type === "testing2") sendMessage({ message: "hi" });
   if (message.type === "content") {
     const { vault } = message.vault;
 
@@ -28,14 +29,14 @@ chrome.runtime.onMessage.addListener((message) => {
       const entries = vault.filter((entry) =>
         location.includes(aesDecrypt(entry.website, "test"))
       );
-      if (entries) {
-        let decryptedEntries = [];
-        entries.forEach((entry) => {
-          decryptedEntries.push({
+      if (entries.length) {
+        // let decryptedEntries = [];
+        const decryptedEntries = entries.map((entry) => {
+          return {
             website: aesDecrypt(entry.website, "test"),
             username: aesDecrypt(entry.username, "test"),
             password: aesDecrypt(entry.password, "test"),
-          });
+          };
         });
         // const decryptedEntry = {
         //   website: aesDecrypt(entry.website, "test"),

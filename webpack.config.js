@@ -10,7 +10,7 @@ module.exports = {
   //   filename: "[name].js",
   // },
   entry: {
-    popup: path.join(__dirname, "src/index.js"),
+    popup: path.join(__dirname, "src/popup.js"),
     content: path.join(__dirname, "src/content.js"),
     background: path.join(__dirname, "src/background.js"),
   },

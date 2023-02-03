@@ -3,7 +3,13 @@ import AES from "crypto-js/aes";
 import CryptoJS from "crypto-js";
 
 export function sendMessage(message) {
-  chrome.runtime.sendMessage(message);
+  chrome.runtime.sendMessage(message, (response) => {
+    if (chrome.runtime.lastError) {
+      console.log("error");
+    } else {
+      console.log("testing res in util", response);
+    }
+  });
 }
 
 export function setBadge() {

@@ -1,6 +1,7 @@
-import { Urbit } from "@urbit/http-api";
 import { create } from "zustand";
 import { setStorage, getStorage } from "./storage";
+import { sendMessage } from "./utils";
+import { connectToShip, newApi } from "./urbit";
 
 export const useStore = create((set) => ({
   url: "",
@@ -12,15 +13,35 @@ export const useStore = create((set) => ({
     }));
     setStorage({ auth: !auth });
   },
-  setApi: (url, ship, code) => {
-    const api = new Urbit(url, code);
-    api.ship = ship;
-    set({ api: api });
-  },
+  // setApi: (url, ship, code) => {
+  //   const api = new Urbit(url, code);
+  //   api.ship = ship;
+  //   set({ api: api });
+  // },
   setUrl: (url) => set({ url: url }),
   setVault: (vault) => set({ vault: vault }),
   setError: (error) => set({ error: error }),
   setTest: (test) => set({ test: test }),
+  connect: async (url, ship, code) => {
+    const res = await connectToShip(url, code);
+    console.log("res", res);
+    if (res.ok) {
+      set({ api: newApi(url, ship, code) });
+      sendMessage({ type: "setupStatus", status: "ok" });
+    } else if (res === "badURL") {
+      sendMessage({
+        type: "setupStatus",
+        error: "url",
+        status: "something went wrong - check your URL",
+      });
+    } else {
+      sendMessage({
+        type: "setupStatus",
+        error: "ship",
+        status: "something went wrong - check your ship and code",
+      });
+    }
+  },
   init: async () => {
     const res = await getStorage(["secret", "vault", "settings", "url"]);
     set({

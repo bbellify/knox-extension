@@ -1,7 +1,8 @@
 /* eslint-disable no-undef */
 import { useStore } from "./store";
 import { setStorage, getStorage } from "./storage";
-import { setBadge, clearBadge } from "./utils";
+import { setBadge, clearBadge, sendMessage } from "./utils";
+import { testScry } from "./urbit";
 console.log("in background");
 
 async function init() {
@@ -13,9 +14,15 @@ async function init() {
   // extensionListener();
   // hotkeyListener();
 
-  getStorage(["auth"]).then((res) => {
-    if (!res.auth) setBadge();
-  });
+  // getStorage(["auth"]).then((res) => {
+  // if (!res.auth) {
+  // setBadge()
+  // sendMessage({ type: "nav", to: "/setup" });
+  // }
+  // }
+  // );
+
+  // chrome.runtime.sendMessage({ type: "nav", data: "/setup" });
 }
 init();
 
@@ -38,28 +45,37 @@ function storageListener() {
       return setBadge();
     }
     if (changes.vault) return state.setVault(changes.vault.newValue);
+    if (changes.url) sendMessage({ type: "urlStorage", message: changes.url });
   });
 }
 
 function messageListener() {
-  chrome.runtime.onMessage.addListener(function (request) {
+  chrome.runtime.onMessage.addListener(async function (
+    message,
+    sender,
+    sendResponse
+  ) {
     const state = useStore.getState();
-    switch (request.type) {
+
+    const storage = await getStorage(["auth"]);
+
+    switch (message.type) {
       case "log": {
-        console.log("log message", request.message);
+        console.log("log message", message.message);
         break;
       }
       case "setUrl": {
-        console.log("in seturl", request.url);
-        state.setUrl(request.url);
+        console.log("in seturl", message.url);
+        // state.setUrl(message.url);
+        setStorage({ url: message.url });
         break;
       }
       case "setStore": {
-        setStorage(request.item);
+        setStorage(message.item);
         break;
       }
       case "getStore": {
-        getStorage(request.key).then((res) =>
+        getStorage(message.key).then((res) =>
           console.log("store in test log", res)
         );
         break;
@@ -69,7 +85,7 @@ function messageListener() {
         break;
       }
       case "setTest": {
-        state.setTest(request.message);
+        state.setTest(message.message);
         break;
       }
       case "setAuth": {
@@ -77,7 +93,11 @@ function messageListener() {
         break;
       }
       case "setApi": {
-        state.setApi(request.url, request.ship, request.code);
+        state.setApi(
+          message.message.url,
+          message.message.ship,
+          message.message.code
+        );
         break;
       }
       case "testScry": {
@@ -94,8 +114,24 @@ function messageListener() {
         state.setError("test error");
         break;
       }
+      case "appMount": {
+        sendResponse({ type: "response", data: storage });
+        break;
+      }
+      case "testing": {
+        sendMessage({ type: "testing2" });
+        break;
+      }
+      case "connectShip": {
+        state.connect(message.url, message.ship, message.code);
+        break;
+      }
+      case "testScry2": {
+        testScry();
+        break;
+      }
       default:
-        console.log("request", request);
+        console.log("request", message);
     }
   });
 }
@@ -117,7 +153,6 @@ function messageListener() {
 // reference
 chrome.tabs.onUpdated.addListener((tab) => {
   chrome.tabs.get(tab, async (current_tab_info) => {
-    console.log("tab info", current_tab_info);
     if (current_tab_info.status === "complete") {
       const vault = await getStorage(["vault"]);
       await chrome.scripting.executeScript({
