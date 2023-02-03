@@ -1,7 +1,5 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import Urbit from "@urbit/http-api";
 import { useStore } from "./store";
-import { sendMessage } from "./utils";
 
 export async function connectToShip(url, code) {
   const controller = new AbortController();

@@ -6,37 +6,6 @@ import { getStorage } from "../storage";
 import { sendMessage } from "../utils";
 
 export function Connect() {
-  chrome.runtime.onMessage.addListener(function (message) {
-    if (message.type === "urlStorage") {
-      if (!message.message.newValue) return setUrlSet(false);
-      if (message.message.newValue) return setUrlSet(true);
-    }
-    if (message.type === "setupStatus") {
-      console.log("setup status in setup", message);
-      if (message.error) {
-        if (message.error === "url") {
-          setUrlError(message.status);
-          setUrlSet(false);
-        }
-        if (message.error === "ship") {
-          setUrlError("");
-          setShipError(message.status);
-        }
-      }
-      if (message.status === "ok") {
-        setUrlError("");
-        setShipError("");
-        navigate("/secret");
-      }
-    }
-  });
-
-  useEffect(() => {
-    getStorage(["url"]).then((res) => {
-      !res.url ? setUrlSet(false) : setUrlSet(true);
-    });
-  }, []);
-
   const navigate = useNavigate();
   const [urlSet, setUrlSet] = useState(false);
   const [urlError, setUrlError] = useState("");
@@ -45,6 +14,39 @@ export function Connect() {
   const [shipForm, setShipForm] = useState({
     ship: "~bud",
     code: "lathus-worsem-bortem-padmel",
+  });
+
+  useEffect(() => {
+    getStorage(["url"]).then((res) => {
+      return res.url ? setUrlSet(true) : setUrlSet(false);
+    });
+  }, []);
+
+  chrome.runtime.onMessage.addListener(function (message) {
+    if (message.type === "setupStatus") {
+      if (message.error) {
+        if (message.error === "url") {
+          setUrlError(message.status);
+          setUrlSet(false);
+          return;
+        }
+        if (message.error === "ship") {
+          setUrlError("");
+          setShipError(message.status);
+          return;
+        }
+      } else {
+        if (message.status === "ok") {
+          setUrlError("");
+          setShipError("");
+          return navigate("/secret");
+        }
+        if (message.status === "urlSet") {
+          setUrlError("");
+          setUrlSet(true);
+        }
+      }
+    }
   });
 
   function prepShipName(ship) {

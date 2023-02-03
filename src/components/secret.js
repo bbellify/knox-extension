@@ -5,15 +5,24 @@ import { useNavigate } from "react-router-dom";
 import { sendMessage } from "../utils";
 
 export function Secret() {
+  const navigate = useNavigate();
+  const [secret, setSecret] = useState("");
+
+  useEffect(() => {
+    sendMessage({ type: "getSecret" });
+    chrome.runtime.onMessage.addListener(function (message) {
+      if (message.type === "getSecretRes") {
+        return message.secret ? navigate("/") : null;
+      }
+    });
+  }, []);
+
   chrome.runtime.onMessage.addListener(function (message) {
-    if (message.type === "secret") {
-      if (message.secret) return navigate("/");
+    if (message.type === "secretSet") {
+      return navigate("/");
       // TODO: handle if no secret?
     }
   });
-
-  const navigate = useNavigate();
-  const [secret, setSecret] = useState("");
 
   function handleInput(e) {
     setSecret(e.target.value);

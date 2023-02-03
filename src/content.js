@@ -20,21 +20,23 @@ for (let i = 0; i < allInputs.length; i++) {
 }
 
 // eslint-disable-next-line
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener(async (message) => {
   if (message.type === "content") {
     console.log("message in content", message);
-    const { vault } = message;
+    const { vault, secret } = message;
+    // TODO: handle if no secret here
+    if (!secret) return console.log("no secret");
 
     if (vault && vault.length) {
       const entries = vault.filter((entry) =>
-        location.includes(aesDecrypt(entry.website, "test"))
+        location.includes(aesDecrypt(entry.website, secret))
       );
       if (entries.length) {
         const decryptedEntries = entries.map((entry) => {
           return {
-            website: aesDecrypt(entry.website, "test"),
-            username: aesDecrypt(entry.username, "test"),
-            password: aesDecrypt(entry.password, "test"),
+            website: aesDecrypt(entry.website, secret),
+            username: aesDecrypt(entry.username, secret),
+            password: aesDecrypt(entry.password, secret),
           };
         });
         if (username)

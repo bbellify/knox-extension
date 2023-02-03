@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import { useStore } from "./store";
 import { setStorage, getStorage } from "./storage";
-import { setBadge, clearBadge, sendMessage } from "./utils";
+import { sendMessage } from "./utils";
 import { scryVault } from "./urbit";
 console.log("in background");
 
@@ -38,12 +38,8 @@ function storageListener() {
   });
 }
 
-function messageListener() {
-  chrome.runtime.onMessage.addListener(async function (
-    message,
-    sender,
-    sendResponse
-  ) {
+async function messageListener() {
+  chrome.runtime.onMessage.addListener(async function (message) {
     const state = useStore.getState();
 
     switch (message.type) {
@@ -51,29 +47,10 @@ function messageListener() {
         if (message.status === "ok" && !state.vault) scryVault();
         break;
       }
-      case "log": {
-        console.log("log message", state);
-        break;
-      }
       case "setUrl": {
-        console.log("in seturl", message.url);
-        // state.setUrl(message.url);
         if (!message.url) return setStorage({ url: null });
         setStorage({ url: message.url });
-        break;
-      }
-      case "setStore": {
-        setStorage(message.item);
-        break;
-      }
-      case "getStore": {
-        getStorage(message.key).then((res) =>
-          console.log("store in test log", res)
-        );
-        break;
-      }
-      case "logState": {
-        console.log("state in test log", state);
+        sendMessage({ type: "setupStatus", status: "urlSet" });
         break;
       }
       case "setApi": {
@@ -90,12 +67,28 @@ function messageListener() {
       }
       case "setSecret": {
         state.setSecret(message.secret);
+        if (!state.vault.length) scryVault();
+        break;
+      }
+      case "getSecret": {
+        sendMessage({ type: "getSecretRes", secret: state.secret });
         break;
       }
       case "getState": {
         console.log("in get state in bg");
         sendMessage({ type: "state", state: state });
         break;
+      }
+      case "getNav": {
+        // TODO: add nav to save case
+        const { url } = await getStorage(["url"]);
+        if (!url) {
+          return sendMessage({ type: "popupNav", message: "/connect" });
+        } else if (!state.api) {
+          return sendMessage({ type: "popupNav", message: "/connect" });
+        } else if (!state.secret) {
+          return sendMessage({ type: "popupNav", message: "/secret" });
+        } else return sendMessage({ type: "popupNav", message: "/" });
       }
       default:
         console.log("request", message);
@@ -126,7 +119,11 @@ chrome.tabs.onUpdated.addListener((tab) => {
         files: ["content.js"],
         target: { tabId: tab },
       });
-      chrome.tabs.sendMessage(tab, { type: "content", vault: state.vault });
+      chrome.tabs.sendMessage(tab, {
+        type: "content",
+        vault: state.vault,
+        secret: state.secret,
+      });
       sendMessage({ type: "state", state: state });
     }
   });

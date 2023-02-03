@@ -1,12 +1,16 @@
 import { create } from "zustand";
 import { setStorage, getStorage } from "./storage";
-import { clearBadge, sendMessage, setBadge } from "./utils";
+import { sendMessage } from "./utils";
 import { connectToShip, newApi } from "./urbit";
 import { Urbit } from "@urbit/http-api";
 
 export const useStore = create((set) => ({
+  api: "",
   url: "",
+  secret: "",
   vault: [],
+  settings: {},
+  error: "",
   setAuth: async () => {
     const { auth } = await getStorage(["auth"]);
     set((state) => ({
@@ -25,21 +29,18 @@ export const useStore = create((set) => ({
     setStorage({ connected: true });
     set({ api: api });
   },
-  setUrl: (url) => set({ url: url }),
   setVault: (vault) => {
     set({ vault: vault });
-    sendMessage({ type: "log" });
   },
   setSecret: (secret) => {
     set({ secret: secret });
-    sendMessage({ type: "secret", secret: true });
+    sendMessage({ type: "secretSet" });
   },
   setError: (error) => set({ error: error }),
   setTest: (test) => set({ test: test }),
   connect: async (url, ship, code) => {
     const res = await connectToShip(url, code);
     if (res.ok) {
-      setStorage({ connected: true });
       set({ api: newApi(url, ship, code) });
       sendMessage({ type: "setupStatus", status: "ok" });
     } else if (res === "badURL") {
@@ -57,15 +58,13 @@ export const useStore = create((set) => ({
     }
   },
   init: async () => {
-    setStorage({ connected: false });
-    const res = await getStorage(["secret", "vault", "settings", "url"]);
+    const res = await getStorage(["settings", "url"]);
     set({
       api: "",
-      auth: false,
       url: res.url || "",
-      secret: res.secret || "",
-      vault: res.vault || [],
-      settings: res.settings || [],
+      secret: "",
+      vault: [],
+      settings: res.settings || {},
       error: "",
     });
   },

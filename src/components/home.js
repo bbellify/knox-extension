@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { sendMessage } from "../utils";
 
@@ -20,28 +20,6 @@ export function Home() {
       >
         <button
           style={{ width: "65%" }}
-          onClick={() =>
-            sendMessage({
-              type: "setStore",
-              item: { key: Math.random() },
-            })
-          }
-        >
-          test set storage
-        </button>
-        <button
-          style={{ width: "65%" }}
-          onClick={() =>
-            sendMessage({
-              type: "getStore",
-              key: ["key", "auth", "vault", "url"],
-            })
-          }
-        >
-          test get storage
-        </button>
-        <button
-          style={{ width: "65%" }}
           onClick={() => sendMessage({ type: "setUrl", url: "" })}
         >
           clear url
@@ -59,12 +37,6 @@ export function Home() {
           onClick={() => sendMessage({ type: "testScry" })}
         >
           test scry
-        </button>
-        <button
-          style={{ width: "65%" }}
-          onClick={() => sendMessage({ type: "getState" })}
-        >
-          get state
         </button>
       </div>
     </>
