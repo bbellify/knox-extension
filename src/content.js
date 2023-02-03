@@ -27,7 +27,7 @@ for (let i = 0; i < allInputs.length; i++) {
 }
 
 // eslint-disable-next-line
-chrome.runtime.onMessage.addListener(async (message) => {
+chrome.runtime.onMessage.addListener((message) => {
   if (message.type === "content") {
     const { vault, secret } = message.state;
     if (!secret) return handleNoSecret();
@@ -54,7 +54,7 @@ chrome.runtime.onMessage.addListener(async (message) => {
       } else {
         handleNoEntry();
         // TODO: remove this, for testing
-        username.addEventListener("click", () => noEntryToolTip());
+        username?.addEventListener("click", () => noEntryToolTip());
       }
     } else {
       handleNoVault();

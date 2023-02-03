@@ -3,12 +3,17 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { sendMessage } from "../utils";
 
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
+
 export function Home() {
   const navigate = useNavigate();
 
   return (
     <>
       <button onClick={() => navigate("/connect")}>test to connect</button>
+      <button onClick={() => sendMessage({ type: "scryVault" })}>
+        <ArrowPathIcon className="refreshIcon" />
+      </button>
       <p>welcome to knox, your web2 password vault</p>
       <div
         style={{
@@ -32,13 +37,6 @@ export function Home() {
           }
         >
           clear api
-        </button>
-        {/* TODO: testScry button only for testing, can remove later */}
-        <button
-          style={{ width: "65%" }}
-          onClick={() => sendMessage({ type: "testScry" })}
-        >
-          test scry
         </button>
         {/* TODO: getState button only for testing */}
         <button

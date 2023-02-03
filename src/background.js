@@ -72,13 +72,13 @@ async function messageListener() {
         sendMessage({ type: "getSuggestionRes", suggestion: state.suggestion });
         break;
       }
+      case "scryVault": {
+        scryVault();
+        break;
+      }
       // TODO: cases below (except default) are only for testing
       case "setApi": {
         state.setApi(message.url, message.ship, message.code);
-        break;
-      }
-      case "testScry": {
-        scryVault();
         break;
       }
       case "getState": {
@@ -91,21 +91,6 @@ async function messageListener() {
   });
 }
 
-// refrence - I might want both activated and updated?
-// chrome.tabs.onActivated.addListener((tab) => {
-//   chrome.tabs.get(tab.tabId, async (current_tab_info) => {
-//     if (current_tab_info.status === "complete") {
-//       const vault = await getStorage(["vault"]);
-//       await chrome.scripting.executeScript({
-//         files: ["content.js"],
-//         target: { tabId: tab.tabId },
-//       });
-//       chrome.tabs.sendMessage(tab.tabId, { type: "content", vault });
-//     }
-//   });
-// });
-
-// reference
 chrome.tabs.onUpdated.addListener((tab) => {
   const state = useStore.getState();
   chrome.tabs.get(tab, async (current_tab_info) => {
@@ -121,3 +106,17 @@ chrome.tabs.onUpdated.addListener((tab) => {
     }
   });
 });
+
+// refrence - I might want both activated and updated?
+// chrome.tabs.onActivated.addListener((tab) => {
+//   chrome.tabs.get(tab.tabId, async (current_tab_info) => {
+//     if (current_tab_info.status === "complete") {
+//       const vault = await getStorage(["vault"]);
+//       await chrome.scripting.executeScript({
+//         files: ["content.js"],
+//         target: { tabId: tab.tabId },
+//       });
+//       chrome.tabs.sendMessage(tab.tabId, { type: "content", vault });
+//     }
+//   });
+// });

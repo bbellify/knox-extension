@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@heroicons/react": "^2.0.14",
     "@popperjs/core": "^2.11.6",
     "@urbit/http-api": "^2.3.0",
     "crypto-js": "^4.1.1",

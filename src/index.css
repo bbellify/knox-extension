@@ -17,3 +17,9 @@ code {
 .App {
   text-align: center;
 }
+
+.refreshIcon {
+  color: black;
+  height: 20px;
+  width: 20px;
+}
