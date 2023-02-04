@@ -1,4 +1,6 @@
 /* eslint-disable no-undef */
+import { aesDecrypt } from "./utils";
+
 export const getStorage = (key) =>
   new Promise((res, rej) =>
     chrome.storage.local.get(key, (result) => {
@@ -14,4 +16,14 @@ export const setStorage = (item) => {
       res(item);
     });
   });
+};
+
+export const setVaultToStorage = (vault, secret) => {
+  const decVault = vault.map((entry) => {
+    return {
+      ...entry,
+      website: aesDecrypt(entry.website, secret),
+    };
+  });
+  setStorage({ vault: decVault });
 };

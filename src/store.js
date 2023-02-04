@@ -6,8 +6,6 @@ import { Urbit } from "@urbit/http-api";
 export const useStore = create((set) => ({
   api: "",
   secret: "",
-  vault: [],
-  settings: {},
   error: "",
   suggestion: "",
   setApi: (url, ship, code) => {
@@ -19,13 +17,11 @@ export const useStore = create((set) => ({
     api.ship = ship;
     set({ api: api });
   },
-  setVault: (vault) => {
-    set({ vault: vault });
-  },
   setSecret: (secret) => {
     set({ secret: secret });
     sendMessage({ type: "secretSet" });
   },
+  setError: (error) => set({ error: error }),
   setSuggestion: (suggestion) => {
     set({ suggestion: suggestion });
     // TODO: this timeout could be based on settings
@@ -33,7 +29,6 @@ export const useStore = create((set) => ({
       set({ suggestion: "" });
     }, 30000);
   },
-  setError: (error) => set({ error: error }),
   setTest: (test) => set({ test: test }),
   connect: async (url, ship, code) => {
     const res = await connectToShip(url, code);
@@ -58,7 +53,6 @@ export const useStore = create((set) => ({
     set({
       api: "",
       secret: "",
-      vault: [],
       error: "",
       suggestion: "",
     });

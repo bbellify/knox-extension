@@ -6,6 +6,7 @@
     "@heroicons/react": "^2.0.14",
     "@popperjs/core": "^2.11.6",
     "@urbit/http-api": "^2.3.0",
+    "bcryptjs": "^2.4.3",
     "crypto-js": "^4.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { sendMessage } from "../utils";
 
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { getStorage } from "../storage";
 
 export function Home() {
   const navigate = useNavigate();
@@ -44,6 +45,23 @@ export function Home() {
           onClick={() => sendMessage({ type: "getState" })}
         >
           log state in bg
+        </button>
+        <button
+          style={{ width: "65%" }}
+          onClick={async () =>
+            sendMessage({
+              type: "default",
+              message: await getStorage(["vault", "secret", "url"]),
+            })
+          }
+        >
+          log storage - vault, secret, url
+        </button>
+        <button
+          style={{ width: "65%" }}
+          onClick={() => chrome.storage.local.remove("secret")}
+        >
+          remove secret from storage
         </button>
       </div>
     </>

@@ -1,4 +1,4 @@
-import { aesDecrypt, sendMessage } from "./utils";
+import { sendMessage } from "./utils";
 import { addTooltip, clearTooltip } from "./tooltip";
 const logIns = ["username", "email"];
 const passes = ["password"];
@@ -26,29 +26,22 @@ for (let i = 0; i < allInputs.length; i++) {
     pword = allInputs[i];
 }
 
-// eslint-disable-next-line
+// eslint-disable-next-line no-undef
 chrome.runtime.onMessage.addListener((message) => {
+  if (message.type === "secretSet") console.log("hella hella hella");
   if (message.type === "content") {
-    const { vault, secret } = message.state;
-    if (!secret) return handleNoSecret();
+    const { vault, secret } = message;
 
-    if (vault && vault.length) {
+    if (vault?.length) {
       const entries = vault.filter((entry) =>
         // TODO: replace location with website?
-        location.includes(aesDecrypt(entry.website, secret))
+        location.includes(entry.website)
       );
       if (entries.length) {
-        const decryptedEntries = entries.map((entry) => {
-          return {
-            website: aesDecrypt(entry.website, secret),
-            username: aesDecrypt(entry.username, secret),
-            password: aesDecrypt(entry.password, secret),
-          };
-        });
         if (username)
-          username.addEventListener("click", () =>
-            addTooltip(decryptedEntries, username, pword)
-          );
+          username.addEventListener("click", () => {
+            addTooltip(entries, secret, username, pword);
+          });
         if (pword)
           pword.addEventListener("click", () => entryToolTip("password"));
       } else {
@@ -90,7 +83,40 @@ function handleNoVault() {
   console.log("no vault");
 }
 
-function handleNoSecret() {
-  // TODO: finish this
-  console.log("no secret");
-}
+// old - reference
+
+// eslint-disable-next-line
+// chrome.runtime.onMessage.addListener((message) => {
+//   if (message.type === "content") {
+//     const { vault, secret } = message.state;
+//     if (!secret) return handleNoSecret();
+
+//     if (vault && vault.length) {
+//       const entries = vault.filter((entry) =>
+//         // TODO: replace location with website?
+//         location.includes(aesDecrypt(entry.website, secret))
+//       );
+//       if (entries.length) {
+//         const decryptedEntries = entries.map((entry) => {
+//           return {
+//             website: aesDecrypt(entry.website, secret),
+//             username: aesDecrypt(entry.username, secret),
+//             password: aesDecrypt(entry.password, secret),
+//           };
+//         });
+//         if (username)
+//           username.addEventListener("click", () =>
+//             addTooltip(decryptedEntries, username, pword)
+//           );
+//         if (pword)
+//           pword.addEventListener("click", () => entryToolTip("password"));
+//       } else {
+//         handleNoEntry();
+//         // TODO: remove this, for testing
+//         username?.addEventListener("click", () => noEntryToolTip());
+//       }
+//     } else {
+//       handleNoVault();
+//     }
+//   }
+// });

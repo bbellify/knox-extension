@@ -33,9 +33,10 @@ export function Secret() {
       <button onClick={() => navigate("/")}>test home</button>
       <p>set your secret</p>
       <input name="secret" value={secret} onChange={handleInput} />
+      {/* TODO: add a check here to validate they're the same, enter twice */}
       <button
         style={{ width: "65%" }}
-        onClick={() => sendMessage({ type: "setSecret", secret: secret })}
+        onClick={() => sendMessage({ type: "saveSecret", secret: secret })}
       >
         set secret
       </button>

@@ -1,4 +1,5 @@
 import Urbit from "@urbit/http-api";
+import { setVaultToStorage } from "./storage";
 import { useStore } from "./store";
 
 export async function connectToShip(url, code) {
@@ -30,11 +31,15 @@ export function newApi(url, ship, code) {
 
 export async function scryVault() {
   const state = useStore.getState();
-  const { api } = state;
+  const { api, secret } = state;
   // handle error here
   if (!api) {
-    console.log("no api");
-    return;
+    return console.log("no api");
+  }
+
+  // TODO: handle if there's no secret?
+  if (!secret) {
+    return console.log("no secret");
   }
 
   api
@@ -42,5 +47,5 @@ export async function scryVault() {
       app: "knox",
       path: "/vault",
     })
-    .then((res) => state.setVault(res.vault));
+    .then((res) => setVaultToStorage(res.vault, secret));
 }
