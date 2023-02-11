@@ -1,15 +1,12 @@
 /* eslint-disable no-undef */
 import { useStore } from "./store";
 import { setStorage, getStorage } from "./storage";
-import { sendMessage } from "./utils";
 import { scryVault } from "./urbit";
-import * as bcrypt from "bcryptjs";
 console.log("in background");
 
 async function init() {
   const state = useStore.getState();
   await state.init();
-  storageListener();
   messageListener();
   // finish below init check
   // checkApiandVaultandWhatelse?()
@@ -20,103 +17,91 @@ async function init() {
 }
 init();
 
-// TODO: do I need this? only thing in storage is url right now. might use for settings
-function storageListener() {
-  chrome.storage.onChanged.addListener(async function (changes) {
-    if (changes.url) sendMessage({ type: "urlStorage", message: changes.url });
-  });
-}
-
 async function messageListener() {
-  chrome.runtime.onMessage.addListener(async function (message) {
+  chrome.runtime.onMessage.addListener(async function (
+    message,
+    sender,
+    sendResponse
+  ) {
     const state = useStore.getState();
 
     switch (message.type) {
-      case "setupStatus": {
-        if (message.status === "ok" && !state.vault) scryVault();
+      case "getState": {
+        // TODO: add nav to save case
+        // use sender here for tooltip vs popup?
+        console.log("in get state", state);
+        sendResponse({ state: state });
         break;
+        // if (!url || !shipCreds) {
+        //   console.log("in 1");
+        //   return sendResponse({ type: "popupNav", message: "/setup" });
+        //   // return true;
+        // } else if (!Object.keys(state.api).length || !state.secret) {
+        //   console.log("in 2");
+        //   return sendResponse({ type: "popupNav", message: "/secret" });
+        //   // return true;
+        // } else if (state.suggestion) {
+        //   console.log("in 3");
+        //   return sendResponse({ type: "popupNav", message: "/save" });
+        //   // return true;
+        // } else return sendResponse({ type: "popupNav", message: "/" });
+        // // return true;
       }
       case "setUrl": {
         if (!message.url) return setStorage({ url: null });
         setStorage({ url: message.url });
-        sendMessage({ type: "setupStatus", status: "urlSet" });
+        sendResponse({ status: "urlSet" });
         break;
       }
-      case "connectShip": {
-        state.connect(message.url, message.ship, message.code);
+      case "connectShipSetup": {
+        const { url } = await getStorage("url");
+        state.connect(url, message.ship, message.code);
         break;
       }
-      case "saveSecret": {
-        const salt = bcrypt.genSaltSync(10);
-        const hash = bcrypt.hashSync(message.secret, salt);
-        setStorage({ secret: hash });
-        state.setSecret(message.secret);
-
-        const { vault } = await getStorage("vault");
-        if (!vault.length) scryVault();
+      // side effect of successful connect - comes from store. might not want this if it can be triggered when there's no secret set
+      case "setupStatus": {
+        if (message.status === "ok" && !state.vault) scryVault();
         break;
       }
       case "setSecret": {
         state.setSecret(message.secret);
+        if (message.url && message.shipCreds) {
+          state.setApi(
+            message.url,
+            message.shipCreds.ship,
+            message.shipCreds.code
+          );
+        }
         break;
-      }
-      case "getSecret": {
-        sendMessage({ type: "getSecretRes", secret: state.secret });
-        break;
-      }
-      case "getNav": {
-        // TODO: add nav to save case
-        const { url } = await getStorage(["url"]);
-        if (!url) {
-          return sendMessage({ type: "popupNav", message: "/connect" });
-        } else if (!state.api) {
-          return sendMessage({ type: "popupNav", message: "/connect" });
-        } else if (!state.secret) {
-          return sendMessage({ type: "popupNav", message: "/secret" });
-        } else if (state.suggestion) {
-          return sendMessage({ type: "popupNav", message: "/save" });
-        } else return sendMessage({ type: "popupNav", message: "/" });
       }
       case "setSuggestion": {
         state.setSuggestion(message.suggestion);
         break;
       }
-      case "getSuggestion": {
-        sendMessage({ type: "getSuggestionRes", suggestion: state.suggestion });
+      case "openKnoxTab": {
+        const { url } = await getStorage("url");
+        chrome.tabs.create({
+          url: `${url}/apps/knox`,
+        });
         break;
       }
       case "scryVault": {
         scryVault();
         break;
       }
-      // TODO: cases below (except default) are only for testing
-      case "setApi": {
-        state.setApi(message.url, message.ship, message.code);
-        break;
-      }
-      case "getState": {
-        console.log("state in bg", state);
-        break;
-      }
       default:
         console.log("request", message);
+        return true;
     }
   });
 }
 
 chrome.tabs.onUpdated.addListener((tab) => {
-  const state = useStore.getState();
   chrome.tabs.get(tab, async (current_tab_info) => {
     if (current_tab_info.status === "complete") {
-      const { vault } = await getStorage("vault");
       await chrome.scripting.executeScript({
         files: ["content.js"],
         target: { tabId: tab },
-      });
-      chrome.tabs.sendMessage(tab, {
-        type: "content",
-        vault: vault,
-        secret: state.secret,
       });
     }
   });

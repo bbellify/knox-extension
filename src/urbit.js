@@ -33,7 +33,7 @@ export async function scryVault() {
   const state = useStore.getState();
   const { api, secret } = state;
   // handle error here
-  if (!api) {
+  if (!Object.keys(api).length) {
     return console.log("no api");
   }
 

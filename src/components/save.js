@@ -13,16 +13,27 @@ export function Save() {
   });
 
   useEffect(() => {
-    sendMessage({ type: "getSuggestion" });
-    chrome.runtime.onMessage.addListener(function (message) {
-      if (message.type === "getSuggestionRes") {
-        setSugForm({
-          website: message.suggestion.website,
-          username: message.suggestion.newUsername,
-          password: message.suggestion.newPassword,
-        });
+    chrome.runtime.sendMessage({ type: "getState" }, (res) => {
+      const { state } = res;
+      if (state.suggestion) {
+        console.log("suggestion", state.suggestion);
+        // TODO: finish this, set form from res, below is reference
+        // setSugForm({
+        //   website:
+        // })
       }
     });
+
+    // sendMessage({ type: "getSuggestion" });
+    // chrome.runtime.onMessage.addListener(function (message) {
+    //   if (message.type === "getSuggestionRes") {
+    //     setSugForm({
+    //       website: message.suggestion.website,
+    //       username: message.suggestion.newUsername,
+    //       password: message.suggestion.newPassword,
+    //     });
+    //   }
+    // });
   }, []);
 
   return (

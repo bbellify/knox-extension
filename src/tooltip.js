@@ -1,7 +1,5 @@
 import { createPopper } from "@popperjs/core";
 import { aesDecrypt, sendMessage } from "./utils";
-import { getStorage } from "./storage";
-import * as bcrypt from "bcryptjs";
 
 export function addTooltipCSS() {
   const style = document.createElement("style");
@@ -75,83 +73,65 @@ export function addTooltipCSS() {
         flex-direction: column;
         padding: 10px 0;
       }
+
+      .invalid-secret {
+        animation: shake 300ms;
+      }
+
+      @keyframes shake {
+        25% {
+          transform: translateX(4px);
+        }
+        50% {
+          transform: translateX(-4px);
+        }
+        75% {
+          transform: translateX(4px)
+        }
+      }
     `;
   document.head.appendChild(style);
 }
 
 export function addTooltip(entries, secret, usernameField, passField) {
   addTooltipCSS();
+  if (!secret) return handleNoSecret();
 
-  const tooltip = document.createElement("div");
-  tooltip.role = "tooltip";
-  tooltip.id = "tooltip";
-  tooltip.className = "knox-tooltip";
-  const arrow = document.createElement("div");
-  arrow.id = "arrow";
-  tooltip.appendChild(arrow);
-  document.body.appendChild(tooltip);
+  const tooltip = prepTooltip();
 
-  if (secret) {
-    entries.forEach((entry, i) => {
-      const username = aesDecrypt(entry.username, secret);
-      const password = aesDecrypt(entry.password, secret);
+  entries.forEach((entry, i) => {
+    const username = aesDecrypt(entry.username, secret);
+    const password = aesDecrypt(entry.password, secret);
 
-      const entryWrapper = document.createElement("div");
-      entryWrapper.id = `entry-wrapper-${i}`;
-      const usernameP = document.createElement("p");
-      usernameP.id = `tooltip-username-${i}`;
-      const passwordP = document.createElement("input");
-      passwordP.id = `tooltip-pass-${i}`;
-      passwordP.type = "password";
-      passwordP.disabled = true;
+    const entryWrapper = document.createElement("div");
+    entryWrapper.id = `entry-wrapper-${i}`;
+    const usernameP = document.createElement("p");
+    usernameP.id = `tooltip-username-${i}`;
+    const passwordP = document.createElement("input");
+    passwordP.id = `tooltip-pass-${i}`;
+    passwordP.type = "password";
+    passwordP.disabled = true;
 
-      usernameP.textContent = username;
-      passwordP.value = password;
+    usernameP.textContent = username;
+    passwordP.value = password;
 
-      entryWrapper.appendChild(usernameP);
-      entryWrapper.appendChild(passwordP);
-      tooltip.appendChild(entryWrapper);
-      entryWrapper.addEventListener("click", () => {
-        if (usernameField) usernameField.value = username;
-        if (passField) passField.value = password;
-        clearTooltip();
-      });
+    entryWrapper.appendChild(usernameP);
+    entryWrapper.appendChild(passwordP);
+    tooltip.appendChild(entryWrapper);
+    entryWrapper.addEventListener("click", () => {
+      if (usernameField) usernameField.value = username;
+      if (passField) passField.value = password;
+      clearTooltip();
     });
+  });
 
-    const divider = document.createElement("div");
-    divider.id = "divider";
-    const tildy = document.createElement("p");
-    tildy.innerHTML = "~";
-    tildy.id = "tildy";
-    tooltip.appendChild(divider);
-    tooltip.appendChild(tildy);
-  } else {
-    console.log("no secret");
-    const inputWrapper = document.createElement("div");
-    inputWrapper.id = "input-wrapper";
-    const secretInput = document.createElement("input");
-    secretInput.id = "secret-input";
-    const secretButton = document.createElement("button");
-    secretButton.innerText = "set secret";
-    tooltip.appendChild(inputWrapper);
-    inputWrapper.appendChild(secretInput);
-    inputWrapper.appendChild(secretButton);
-
-    secretButton.addEventListener("click", async () => {
-      const { secret: secretHash } = await getStorage("secret");
-
-      if (bcrypt.compareSync(secretInput.value, secretHash)) {
-        sendMessage({ type: "setSecret", secret: secretInput.value });
-        addTooltip(entries, secretInput.value, usernameField, passField);
-        usernameField.addEventListener("click", () => {
-          addTooltip(entries, secretInput.value, usernameField, passField);
-        });
-      } else {
-        // TODO: handle "incorrect secret" message here?
-        addTooltip(entries, secret, usernameField, passField);
-      }
-    });
-  }
+  const divider = document.createElement("div");
+  divider.id = "divider";
+  const tildy = document.createElement("p");
+  tildy.innerHTML = "~";
+  tildy.id = "tildy";
+  tooltip.appendChild(divider);
+  tooltip.appendChild(tildy);
 
   createPopper(usernameField, tooltip, {
     placement: "bottom",
@@ -163,15 +143,71 @@ export function addTooltip(entries, secret, usernameField, passField) {
     },
   });
 
-  /*
-   * TODO: this is hacky
-   * problem is when there is no secret, and then you set secret,
-   * you get correct popup. BUT, if you click away and click input
-   * again, you get the set state popup because I can't seem to get
-   * state to update here in content. so I'm adding an extra event listener
-   * (I should remove other one - tried, not sure how) so two tooltips
-   * are appearing, and I'm removing all but the last one
-   */
+  // TODO: see below
+  const allTips = Array.from(document.getElementsByClassName("knox-tooltip"));
+  allTips.forEach((tip, i) => {
+    return i !== allTips.length - 1 ? tip.remove() : null;
+  });
+}
+
+export function addNoSecretTooltip(
+  entries,
+  shipCreds,
+  usernameField,
+  passwordField
+) {
+  addTooltipCSS();
+
+  const tooltip = prepTooltip();
+  const inputWrapper = document.createElement("div");
+  inputWrapper.id = "input-wrapper";
+  const secretInput = document.createElement("input");
+  secretInput.id = "secret-input";
+  const submitSecret = document.createElement("button");
+  submitSecret.id = "submitSecret";
+  submitSecret.innerText = "set secret";
+  tooltip.appendChild(inputWrapper);
+  inputWrapper.appendChild(secretInput);
+  inputWrapper.appendChild(submitSecret);
+
+  submitSecret.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (
+      aesDecrypt(shipCreds.ship, secretInput.value) &&
+      aesDecrypt(shipCreds.code, secretInput.value)
+    ) {
+      console.log("success");
+      sendMessage({ type: "setSecret", secret: secretInput.value });
+      if (usernameField) {
+        addTooltip(entries, secretInput.value, usernameField, passwordField);
+        return usernameField.addEventListener("click", () => {
+          addTooltip(entries, secretInput.value, usernameField, passwordField);
+        });
+      }
+    } else {
+      console.log("invalid secret");
+      secretInput.classList.add("invalid-secret");
+      secretInput.value = "";
+      setTimeout(() => {
+        secretInput.classList.remove("invalid-secret");
+      }, 300);
+      // const invalidSecret = document.createElement("p");
+      // invalidSecret.innerHTML = "invalid";
+      // inputWrapper.appendChild(invalidSecret);
+    }
+  });
+
+  createPopper(usernameField, tooltip, {
+    placement: "bottom",
+    modifiers: {
+      name: "offset",
+      options: {
+        offset: [0, 10],
+      },
+    },
+  });
+
+  // TODO: see below
   const allTips = Array.from(document.getElementsByClassName("knox-tooltip"));
   allTips.forEach((tip, i) => {
     return i !== allTips.length - 1 ? tip.remove() : null;
@@ -185,3 +221,30 @@ export function clearTooltip() {
   if (style) style.remove();
   return;
 }
+
+function prepTooltip() {
+  const tooltip = document.createElement("div");
+  tooltip.role = "tooltip";
+  tooltip.id = "tooltip";
+  tooltip.className = "knox-tooltip";
+  const arrow = document.createElement("div");
+  arrow.id = "arrow";
+  tooltip.appendChild(arrow);
+  document.body.appendChild(tooltip);
+  return tooltip;
+}
+
+function handleNoSecret() {
+  // TODO: finish this
+  console.log("no secret in tooltip but there should be");
+}
+
+/*
+ * TODO: this is hacky solve for multiple tooltips
+ * problem is when there is no secret, and then you set secret,
+ * you get correct popup. BUT, if you click away and click input
+ * again, you get the set state popup because I can't seem to get
+ * state to update here in content. so I'm adding an extra event listener
+ * (I should remove other one - tried, not sure how) so two tooltips
+ * are appearing, and I'm removing all but the last one
+ */

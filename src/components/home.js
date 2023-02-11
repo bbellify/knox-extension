@@ -11,7 +11,8 @@ export function Home() {
 
   return (
     <>
-      <button onClick={() => navigate("/connect")}>test to connect</button>
+      <button onClick={() => navigate("/setup")}>test to setup</button>
+      <button onClick={() => navigate("/secret")}>test to secret</button>
       <button onClick={() => sendMessage({ type: "scryVault" })}>
         <ArrowPathIcon className="refreshIcon" />
       </button>
@@ -30,15 +31,6 @@ export function Home() {
         >
           clear url
         </button>
-        {/* TODO: setApi is for testing, can remove later */}
-        <button
-          style={{ width: "65%" }}
-          onClick={() =>
-            sendMessage({ type: "setApi", url: "", ship: "", code: "" })
-          }
-        >
-          clear api
-        </button>
         {/* TODO: getState button only for testing */}
         <button
           style={{ width: "65%" }}
@@ -51,17 +43,27 @@ export function Home() {
           onClick={async () =>
             sendMessage({
               type: "default",
-              message: await getStorage(["vault", "secret", "url"]),
+              message: await getStorage(["vault", "url", "shipCreds"]),
             })
           }
         >
-          log storage - vault, secret, url
+          log storage - vault, url, shipCreds
         </button>
         <button
           style={{ width: "65%" }}
-          onClick={() => chrome.storage.local.remove("secret")}
+          onClick={() => {
+            chrome.storage.local.remove("shipCreds");
+            chrome.storage.local.remove("url");
+            chrome.storage.local.remove("vault");
+          }}
         >
-          remove secret from storage
+          remove url shipCreds and vault from storage
+        </button>
+        <button
+          style={{ width: "65%" }}
+          onClick={() => sendMessage({ type: "openKnoxTab" })}
+        >
+          open Knox app
         </button>
       </div>
     </>

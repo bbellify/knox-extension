@@ -1,21 +1,18 @@
 import { create } from "zustand";
 import { sendMessage } from "./utils";
-import { connectToShip, newApi } from "./urbit";
-import { Urbit } from "@urbit/http-api";
+import { connectToShip, newApi, scryVault } from "./urbit";
+import { getStorage } from "./storage";
 
-export const useStore = create((set) => ({
-  api: "",
+export const useStore = create((set, get) => ({
+  api: {},
   secret: "",
   error: "",
   suggestion: "",
   setApi: (url, ship, code) => {
-    if (!url || !ship || !code) {
-      // TODO: handle this error somehow
-      return set({ api: "" });
+    set({ api: newApi(url, ship, code) });
+    if (get().secret) {
+      scryVault();
     }
-    const api = new Urbit(url, code);
-    api.ship = ship;
-    set({ api: api });
   },
   setSecret: (secret) => {
     set({ secret: secret });
@@ -29,8 +26,13 @@ export const useStore = create((set) => ({
       set({ suggestion: "" });
     }, 30000);
   },
+  setShipCreds: (shipCreds) => {
+    set({ shipCreds: shipCreds });
+  },
   setTest: (test) => set({ test: test }),
   connect: async (url, ship, code) => {
+    const { shipCreds } = await getStorage("shipCreds");
+    console.log("shipCreds in store", shipCreds);
     const res = await connectToShip(url, code);
     if (res.ok) {
       set({ api: newApi(url, ship, code) });
@@ -51,7 +53,7 @@ export const useStore = create((set) => ({
   },
   init: () => {
     set({
-      api: "",
+      api: {},
       secret: "",
       error: "",
       suggestion: "",

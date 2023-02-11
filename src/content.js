@@ -1,11 +1,18 @@
 import { sendMessage } from "./utils";
-import { addTooltip, clearTooltip } from "./tooltip";
-const logIns = ["username", "email"];
-const passes = ["password"];
+import { addTooltip, addNoSecretTooltip, clearTooltip } from "./tooltip";
+import { getStorage } from "./storage";
 console.log("in content");
 
+const logIns = ["username", "email"];
+const passes = ["password"];
+
 document.addEventListener("click", (e) => {
-  if (e.target.nodeName !== "INPUT") clearTooltip();
+  if (
+    e.target.nodeName !== "INPUT" &&
+    e.target.id !== "submitSecret" &&
+    e.target.id !== "tooltip"
+  )
+    clearTooltip();
 });
 
 const location = window.location.toString();
@@ -27,23 +34,36 @@ for (let i = 0; i < allInputs.length; i++) {
 }
 
 // eslint-disable-next-line no-undef
-chrome.runtime.onMessage.addListener((message) => {
-  if (message.type === "secretSet") console.log("hella hella hella");
-  if (message.type === "content") {
-    const { vault, secret } = message;
+chrome.runtime.sendMessage({ type: "getState" }, (res) => {
+  const { secret } = res.state;
 
-    if (vault?.length) {
+  getStorage(["vault", "shipCreds"]).then((res) => {
+    const { vault, shipCreds } = res;
+
+    if (!shipCreds) return handleNoShipCreds();
+    if (!vault) return handleNoVault();
+
+    if (vault.length) {
       const entries = vault.filter((entry) =>
         // TODO: replace location with website?
         location.includes(entry.website)
       );
       if (entries.length) {
-        if (username)
-          username.addEventListener("click", () => {
-            addTooltip(entries, secret, username, pword);
-          });
-        if (pword)
-          pword.addEventListener("click", () => entryToolTip("password"));
+        if (!secret) {
+          console.log("no secret");
+          if (username) {
+            return username.addEventListener("click", () => {
+              addNoSecretTooltip(entries, shipCreds, username, pword);
+            });
+          } else return;
+        } else {
+          if (username)
+            username.addEventListener("click", () => {
+              addTooltip(entries, secret, username, pword);
+            });
+          if (pword)
+            pword.addEventListener("click", () => entryToolTip("password"));
+        }
       } else {
         handleNoEntry();
         // TODO: remove this, for testing
@@ -52,7 +72,7 @@ chrome.runtime.onMessage.addListener((message) => {
     } else {
       handleNoVault();
     }
-  }
+  });
 });
 
 function entryToolTip(clicked) {
@@ -83,40 +103,7 @@ function handleNoVault() {
   console.log("no vault");
 }
 
-// old - reference
-
-// eslint-disable-next-line
-// chrome.runtime.onMessage.addListener((message) => {
-//   if (message.type === "content") {
-//     const { vault, secret } = message.state;
-//     if (!secret) return handleNoSecret();
-
-//     if (vault && vault.length) {
-//       const entries = vault.filter((entry) =>
-//         // TODO: replace location with website?
-//         location.includes(aesDecrypt(entry.website, secret))
-//       );
-//       if (entries.length) {
-//         const decryptedEntries = entries.map((entry) => {
-//           return {
-//             website: aesDecrypt(entry.website, secret),
-//             username: aesDecrypt(entry.username, secret),
-//             password: aesDecrypt(entry.password, secret),
-//           };
-//         });
-//         if (username)
-//           username.addEventListener("click", () =>
-//             addTooltip(decryptedEntries, username, pword)
-//           );
-//         if (pword)
-//           pword.addEventListener("click", () => entryToolTip("password"));
-//       } else {
-//         handleNoEntry();
-//         // TODO: remove this, for testing
-//         username?.addEventListener("click", () => noEntryToolTip());
-//       }
-//     } else {
-//       handleNoVault();
-//     }
-//   }
-// });
+function handleNoShipCreds() {
+  // TODO: need to go back to set up if no shipCreds
+  console.log("no shipCreds");
+}

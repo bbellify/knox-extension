@@ -5,48 +5,50 @@ import { getStorage } from "../storage";
 
 import { sendMessage } from "../utils";
 
-export function Connect() {
+export function Setup() {
   const navigate = useNavigate();
   const [urlSet, setUrlSet] = useState(false);
   const [urlError, setUrlError] = useState("");
   const [shipError, setShipError] = useState("");
-  const [urlForm, setUrlForm] = useState("");
+  const [urlForm, setUrlForm] = useState("http://localhost:80");
   const [shipForm, setShipForm] = useState({
     ship: "~bud",
     code: "lathus-worsem-bortem-padmel",
   });
 
   useEffect(() => {
-    getStorage(["url"]).then((res) => {
+    getStorage(["url", "shipCreds"]).then((res) => {
+      // finish this with shipcreds logic
+      // if url but no shipCreds, what?
+      console.log("shipCreds", res.shipCreds);
       return res.url ? setUrlSet(true) : setUrlSet(false);
     });
   }, []);
 
-  chrome.runtime.onMessage.addListener(function (message) {
-    if (message.type === "setupStatus") {
-      if (message.error) {
-        if (message.error === "url") {
-          setUrlError(message.status);
-          setUrlSet(false);
-          return;
-        }
-        if (message.error === "ship") {
-          setUrlError("");
-          setShipError(message.status);
-          return;
-        }
-      } else {
-        if (message.status === "ok") {
-          setUrlError("");
-          setShipError("");
-          return navigate("/secret");
-        }
-        if (message.status === "urlSet") {
-          setUrlError("");
-          setUrlSet(true);
+  useEffect(() => {
+    // TODO: change this to checking storage for URL and ship creds
+    chrome.runtime.onMessage.addListener(function (message) {
+      if (message.type === "setupStatus") {
+        if (message.error) {
+          if (message.error === "url") {
+            setUrlError(message.status);
+            setUrlSet(false);
+            return;
+          }
+          if (message.error === "ship") {
+            setUrlError("");
+            setShipError(message.status);
+            return;
+          }
+        } else {
+          if (message.status === "ok") {
+            setUrlError("");
+            setShipError("");
+            return navigate("/secretSetup");
+          }
         }
       }
-    }
+    });
   });
 
   function prepShipName(ship) {
@@ -65,13 +67,25 @@ export function Connect() {
     });
   }
 
-  async function handleConnect() {
+  async function handleConnectShip() {
+    // move url to connect to ship method in state?
+    // checking for url on mount, so maybe I don't need here
     const { url } = await getStorage(["url"]);
     sendMessage({
-      type: "connectShip",
+      type: "connectShipSetup",
       url: url,
       ship: prepShipName(shipForm.ship).trim(),
       code: shipForm.code.trim(),
+    });
+  }
+
+  function handleSubmitUrl() {
+    if (!urlForm.length) return setUrlError("enter a url");
+    chrome.runtime.sendMessage({ type: "setUrl", url: urlForm }, (res) => {
+      if (res.status === "urlSet") {
+        setUrlError("");
+        return setUrlSet(true);
+      }
     });
   }
 
@@ -82,7 +96,8 @@ export function Connect() {
       <input name="url" value={urlForm} onChange={handleUrlForm} />
       <button
         style={{ width: "65%" }}
-        onClick={() => sendMessage({ type: "setUrl", url: urlForm })}
+        // onClick={() => sendMessage({ type: "setUrl", url: urlForm })}
+        onClick={handleSubmitUrl}
       >
         test set url
       </button>
@@ -99,7 +114,7 @@ export function Connect() {
         onChange={handleShipForm}
         placeholder={"code"}
       />
-      <button onClick={handleConnect}>connect</button>
+      <button onClick={handleConnectShip}>connect</button>
       {shipError && <p>{shipError}</p>}
     </>
   );
