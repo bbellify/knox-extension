@@ -41,7 +41,9 @@ export function Setup() {
             return;
           }
         } else {
-          if (message.status === "ok") {
+          if (message.status === "noKnox") {
+            return navigate("/noKnox");
+          } else if (message.status === "ok") {
             setUrlError("");
             setShipError("");
             return navigate("/secretSetup");

@@ -36,7 +36,18 @@ export const useStore = create((set, get) => ({
     const res = await connectToShip(url, code);
     if (res.ok) {
       set({ api: newApi(url, ship, code) });
-      sendMessage({ type: "setupStatus", status: "ok" });
+      // check ship for knox, tell them to download if not present
+      get()
+        .api.scry({
+          app: "docket",
+          path: "/charges",
+        })
+        .then((res) => {
+          // TODO: I think this works but should revisit, add to noKnox component
+          if (res.initial.knox)
+            return sendMessage({ type: "setupStatus", status: "ok" });
+          else return sendMessage({ type: "setupStatus", status: "noKnox" });
+        });
     } else if (res === "badURL") {
       sendMessage({
         type: "setupStatus",

@@ -37,8 +37,8 @@ for (let i = 0; i < allInputs.length; i++) {
 chrome.runtime.sendMessage({ type: "getState" }, (res) => {
   const { secret } = res.state;
 
-  getStorage(["vault", "shipCreds"]).then((res) => {
-    const { vault, shipCreds } = res;
+  getStorage(["vault", "shipCreds", "url"]).then((res) => {
+    const { vault, shipCreds, url } = res;
 
     if (!shipCreds) return handleNoShipCreds();
     if (!vault) return handleNoVault();
@@ -53,7 +53,7 @@ chrome.runtime.sendMessage({ type: "getState" }, (res) => {
           console.log("no secret");
           if (username) {
             return username.addEventListener("click", () => {
-              addNoSecretTooltip(entries, shipCreds, username, pword);
+              addNoSecretTooltip(entries, shipCreds, username, pword, url);
             });
           } else return;
         } else {

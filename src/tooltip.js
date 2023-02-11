@@ -154,7 +154,8 @@ export function addNoSecretTooltip(
   entries,
   shipCreds,
   usernameField,
-  passwordField
+  passwordField,
+  url
 ) {
   addTooltipCSS();
 
@@ -176,8 +177,15 @@ export function addNoSecretTooltip(
       aesDecrypt(shipCreds.ship, secretInput.value) &&
       aesDecrypt(shipCreds.code, secretInput.value)
     ) {
-      console.log("success");
-      sendMessage({ type: "setSecret", secret: secretInput.value });
+      sendMessage({
+        type: "setSecret",
+        secret: secretInput.value,
+        url: url,
+        shipCreds: {
+          ship: aesDecrypt(shipCreds.ship),
+          code: aesDecrypt(shipCreds.code),
+        },
+      });
       if (usernameField) {
         addTooltip(entries, secretInput.value, usernameField, passwordField);
         return usernameField.addEventListener("click", () => {
@@ -191,9 +199,6 @@ export function addNoSecretTooltip(
       setTimeout(() => {
         secretInput.classList.remove("invalid-secret");
       }, 300);
-      // const invalidSecret = document.createElement("p");
-      // invalidSecret.innerHTML = "invalid";
-      // inputWrapper.appendChild(invalidSecret);
     }
   });
 

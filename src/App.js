@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
+
 import { sendMessage } from "./utils";
+import { getStorage } from "./storage";
 
 import { Home } from "./components/home";
 import { Setup } from "./components/setup";
 import { Secret } from "./components/secret";
 import { SecretSetup } from "./components/secretSetup";
 import { Save } from "./components/save";
-import { getStorage } from "./storage";
+import { NoKnox } from "./components/noKnox";
 
 function App() {
   const navigate = useNavigate();
@@ -22,22 +24,20 @@ function App() {
       console.log("api and secret in app", api, secret);
       const { url, shipCreds } = await getStorage(["url", "shipCreds"]);
       console.log("url ship in response", url, shipCreds);
+      setNavSet(true);
 
       // TODO: set up separate secret components, one for set up (no shipCreds) one for not (have shipCreds)?
       if (!url) {
-        setNavSet(true);
         return navigate("/setup");
       }
       if (!shipCreds) {
-        setNavSet(true);
         return navigate("/secretSetup");
       }
       if (!api || !secret) {
-        setNavSet(true);
         return navigate("/secret");
       }
-      setNavSet(true);
-      return navigate("/");
+
+      // return navigate("/");
     });
   }, []);
 
@@ -56,6 +56,7 @@ function App() {
           <Route path={"/secretSetup"} exact={true} element={<SecretSetup />} />
           <Route path={"/secret"} exact={true} element={<Secret />} />
           <Route path={"/save"} exact={true} element={<Save />} />
+          <Route path={"/noKnox"} exact={true} element={<NoKnox />} />
         </Routes>
       )}
     </div>
