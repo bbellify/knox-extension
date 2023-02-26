@@ -15,6 +15,7 @@ export function addTooltipCSS() {
         align-items: center;
         padding: 5px 0px;
         width: 250px;
+        z-index: 999999;
       }
       
       #arrow {

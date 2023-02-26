@@ -9,7 +9,7 @@ import { newApi } from "../urbit";
 
 export function SecretSetup() {
   const navigate = useNavigate();
-  const [secret, setSecret] = useState("");
+  const [secret, setSecret] = useState("test");
   const [api, setApi] = useState(null);
   const [secretError, setSecretError] = useState(null);
 

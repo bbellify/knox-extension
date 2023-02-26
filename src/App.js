@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
-import { sendMessage } from "./utils";
 import { getStorage } from "./storage";
 
 import { Home } from "./components/home";
 import { Setup } from "./components/setup";
 import { Secret } from "./components/secret";
 import { SecretSetup } from "./components/secretSetup";
-import { Save } from "./components/save";
 import { NoKnox } from "./components/noKnox";
 
 function App() {
@@ -36,7 +34,6 @@ function App() {
       if (!api || !secret) {
         return navigate("/secret");
       }
-
       // return navigate("/");
     });
   }, []);
@@ -55,7 +52,6 @@ function App() {
           <Route path={"/setup"} exact={true} element={<Setup />} />
           <Route path={"/secretSetup"} exact={true} element={<SecretSetup />} />
           <Route path={"/secret"} exact={true} element={<Secret />} />
-          <Route path={"/save"} exact={true} element={<Save />} />
           <Route path={"/noKnox"} exact={true} element={<NoKnox />} />
         </Routes>
       )}

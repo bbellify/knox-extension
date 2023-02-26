@@ -2,6 +2,7 @@
 import { useStore } from "./store";
 import { setStorage, getStorage } from "./storage";
 import { scryVault } from "./urbit";
+import { clearIcon, setSuggestionIcon } from "./utils";
 console.log("in background");
 
 async function init() {
@@ -76,6 +77,8 @@ async function messageListener() {
       }
       case "setSuggestion": {
         state.setSuggestion(message.suggestion);
+        if (message.suggestion) setSuggestionIcon();
+        if (!message.suggestion) clearIcon();
         break;
       }
       case "openKnoxTab": {

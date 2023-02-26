@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { sendMessage } from "./utils";
+import { sendMessage, clearIcon } from "./utils";
 import { connectToShip, newApi, scryVault } from "./urbit";
 import { getStorage } from "./storage";
 
@@ -7,7 +7,7 @@ export const useStore = create((set, get) => ({
   api: {},
   secret: "",
   error: "",
-  suggestion: "",
+  suggestion: null,
   setApi: (url, ship, code) => {
     set({ api: newApi(url, ship, code) });
     if (get().secret) {
@@ -23,8 +23,9 @@ export const useStore = create((set, get) => ({
     set({ suggestion: suggestion });
     // TODO: this timeout could be based on settings
     setTimeout(() => {
-      set({ suggestion: "" });
-    }, 30000);
+      set({ suggestion: null });
+      clearIcon();
+    }, 10000);
   },
   setShipCreds: (shipCreds) => {
     set({ shipCreds: shipCreds });
@@ -67,7 +68,7 @@ export const useStore = create((set, get) => ({
       api: {},
       secret: "",
       error: "",
-      suggestion: "",
+      suggestion: null,
     });
   },
 }));

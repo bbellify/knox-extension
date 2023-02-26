@@ -13,8 +13,31 @@ export function sendMessage(message) {
 }
 
 export function setBadge() {
-  chrome.action.setBadgeText({ text: " " });
+  chrome.action.setBadgeText({ text: "!" });
   chrome.action.setBadgeBackgroundColor({ color: "#ef4444" });
+}
+
+// TODO: this works but the icon is stupid, figure out better UI/UX
+export function setSuggestionIcon() {
+  chrome.action.setIcon({
+    path: {
+      16: "save.png",
+      32: "save.png",
+      48: "save.png",
+      128: "save.png",
+    },
+  });
+}
+
+export function clearIcon() {
+  chrome.action.setIcon({
+    path: {
+      16: "knox-100.png",
+      32: "knox-100.png",
+      48: "knox-100.png",
+      128: "knox-100.png",
+    },
+  });
 }
 
 export function clearBadge() {
