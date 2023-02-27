@@ -28,7 +28,6 @@ function getInputs() {
   for (let i = 0; i < allInputs.length; i++) {
     if (logIns.includes(allInputs[i].name)) {
       username = allInputs[i];
-      // username.addEventListener("click", () => console.log("username click"));
     }
     if (allInputs[i].type === "password" || passes.includes(allInputs[i].name))
       pword = allInputs[i];
@@ -53,6 +52,7 @@ let observer = new MutationObserver((mutations) => {
       Array.from(mutation.removedNodes).some((node) => node.id === "tooltip") ||
       Array.from(mutation.removedNodes).some((node) => node.id === "knox-style")
     ) {
+      // TODO: remove these logs
       return console.log("do nothing");
     } else {
       console.log("mutations in else", mutations);
@@ -99,8 +99,6 @@ function init() {
               pword.addEventListener("click", () => entryToolTip("password"));
           }
         } else {
-          console.log("in no entry");
-          // no entry
           handleNoEntry();
         }
       } else {
@@ -120,6 +118,8 @@ function noEntryToolTip() {
 }
 
 function handleNoEntry() {
+  // TODO: remove this log
+  console.log("in no entry");
   const [username, pword, submitButton] = getInputs();
   submitButton?.addEventListener("click", () => {
     const newUsername = username?.value;

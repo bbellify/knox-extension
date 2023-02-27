@@ -18,7 +18,6 @@ export async function connectToShip(url, code) {
     });
     return res;
   } catch {
-    console.log("in catch");
     return "badURL";
   }
 }
@@ -30,9 +29,10 @@ export function newApi(url, ship, code) {
 }
 
 export async function scryVault() {
+  console.log("in scry");
   const state = useStore.getState();
   const { api, secret } = state;
-  // handle error here
+  // TODO: handle error here/remove log
   if (!Object.keys(api).length) {
     return console.log("no api");
   }

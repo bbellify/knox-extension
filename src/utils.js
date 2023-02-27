@@ -8,6 +8,7 @@ export function sendMessage(message) {
       console.log("error");
     } else {
       console.log("testing res in util", response);
+      return response;
     }
   });
 }

@@ -17,19 +17,12 @@ function App() {
   useEffect(() => {
     // eslint-disable-next-line no-undef
     chrome.runtime.sendMessage({ type: "getState" }, async (res) => {
-      console.log("res in app", res);
       const { api, secret } = res.state;
-      console.log("api and secret in app", api, secret);
       const { url, shipCreds } = await getStorage(["url", "shipCreds"]);
-      console.log("url ship in response", url, shipCreds);
       setNavSet(true);
 
-      // TODO: set up separate secret components, one for set up (no shipCreds) one for not (have shipCreds)?
-      if (!url) {
+      if (!url || !shipCreds) {
         return navigate("/setup");
-      }
-      if (!shipCreds) {
-        return navigate("/secretSetup");
       }
       if (!api || !secret) {
         return navigate("/secret");

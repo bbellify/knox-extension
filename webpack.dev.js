@@ -1,5 +1,4 @@
 const path = require("path");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 
@@ -29,7 +28,8 @@ module.exports = {
       },
       {
         test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader, "css-loader"],
+        use: ["style-loader", "css-loader", "postcss-loader"],
+        exclude: /\.module\.css$/,
       },
     ],
   },
@@ -38,7 +38,6 @@ module.exports = {
       template: "./public/index.html",
       filename: "popup.html",
     }),
-    new MiniCssExtractPlugin(),
     new CopyPlugin({
       patterns: [
         {

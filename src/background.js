@@ -29,24 +29,8 @@ async function messageListener() {
     switch (message.type) {
       case "getState": {
         // TODO: add nav to save case
-        // use sender here for tooltip vs popup?
-        console.log("in get state", state);
         sendResponse({ state: state });
         break;
-        // if (!url || !shipCreds) {
-        //   console.log("in 1");
-        //   return sendResponse({ type: "popupNav", message: "/setup" });
-        //   // return true;
-        // } else if (!Object.keys(state.api).length || !state.secret) {
-        //   console.log("in 2");
-        //   return sendResponse({ type: "popupNav", message: "/secret" });
-        //   // return true;
-        // } else if (state.suggestion) {
-        //   console.log("in 3");
-        //   return sendResponse({ type: "popupNav", message: "/save" });
-        //   // return true;
-        // } else return sendResponse({ type: "popupNav", message: "/" });
-        // // return true;
       }
       case "setUrl": {
         if (!message.url) return setStorage({ url: null });
@@ -57,11 +41,6 @@ async function messageListener() {
       case "connectShipSetup": {
         const { url } = await getStorage("url");
         state.connect(url, message.ship, message.code);
-        break;
-      }
-      // side effect of successful connect - comes from store. might not want this if it can be triggered when there's no secret set
-      case "setupStatus": {
-        if (message.status === "ok" && !state.vault) scryVault();
         break;
       }
       case "setSecret": {

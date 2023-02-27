@@ -12,8 +12,10 @@ export function Setup() {
   const [shipError, setShipError] = useState("");
   const [urlForm, setUrlForm] = useState("http://localhost:80");
   const [shipForm, setShipForm] = useState({
-    ship: "~bud",
-    code: "lathus-worsem-bortem-padmel",
+    ship: "",
+    code: "",
+    // ship: "~bud",
+    // code: "lathus-worsem-bortem-padmel",
   });
 
   useEffect(() => {
@@ -91,33 +93,59 @@ export function Setup() {
     });
   }
 
-  return !urlSet ? (
-    <>
-      <button onClick={() => navigate("/")}>test home</button>
-      <p>url where you connect to your ship</p>
-      <input name="url" value={urlForm} onChange={handleUrlForm} />
-      <button
-        style={{ width: "65%" }}
-        // onClick={() => sendMessage({ type: "setUrl", url: urlForm })}
-        onClick={handleSubmitUrl}
-      >
-        test set url
-      </button>
-      {urlError && <p>{urlError}</p>}
-    </>
-  ) : (
-    <>
-      <button onClick={() => navigate("/")}>test home</button>
-      <p>enter your ship and code</p>
-      <input name="ship" value={shipForm.ship} onChange={handleShipForm} />
-      <input
-        name="code"
-        value={shipForm.code}
-        onChange={handleShipForm}
-        placeholder={"code"}
-      />
-      <button onClick={handleConnectShip}>connect</button>
-      {shipError && <p>{shipError}</p>}
-    </>
+  return (
+    <div className="flex-col mt-3">
+      <p className="font-bold my-2">
+        Welcome to Knox, your web2 password vault.
+      </p>
+      {!urlSet ? (
+        <div className="flex flex-col mt-3 items-center">
+          <p className="mb-2">Enter the url where you connect to your ship:</p>
+          <input
+            className="border border-black w-1/2 mb-2 px-3 py-1"
+            name="url"
+            value={urlForm}
+            onChange={handleUrlForm}
+          />
+          <button
+            className="border border-black px-2 py-1"
+            onClick={handleSubmitUrl}
+          >
+            set url
+          </button>
+          {urlError && (
+            <p className="text-red-500 font-bold mt-2">{urlError}</p>
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-col mt-3 items-center">
+          <p className="mb-2">Enter your ship and code:</p>
+          <input
+            name="ship"
+            placeholder="ship"
+            value={shipForm.ship}
+            className="border border-black w-3/5 mb-1 px-3 py-1"
+            onChange={handleShipForm}
+          />
+          <input
+            name="code"
+            className="border border-black w-3/5 mb-2 px-3 py-1"
+            value={shipForm.code}
+            onChange={handleShipForm}
+            placeholder="code"
+            type="password"
+          />
+          <button
+            onClick={handleConnectShip}
+            className="border border-black px-2 py-1"
+          >
+            connect
+          </button>
+          {shipError && (
+            <p className="text-red-500 font-bold mt-2">{shipError}</p>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

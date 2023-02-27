@@ -244,13 +244,3 @@ function handleNoSecret() {
   // TODO: finish this
   console.log("no secret in tooltip but there should be");
 }
-
-/*
- * TODO: this is hacky solve for multiple tooltips
- * problem is when there is no secret, and then you set secret,
- * you get correct popup. BUT, if you click away and click input
- * again, you get the set state popup because I can't seem to get
- * state to update here in content. so I'm adding an extra event listener
- * (I should remove other one - tried, not sure how) so two tooltips
- * are appearing, and I'm removing all but the last one
- */

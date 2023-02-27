@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { sendMessage, clearIcon } from "./utils";
 import { connectToShip, newApi, scryVault } from "./urbit";
-import { getStorage } from "./storage";
 
 export const useStore = create((set, get) => ({
   api: {},
@@ -32,8 +31,6 @@ export const useStore = create((set, get) => ({
   },
   setTest: (test) => set({ test: test }),
   connect: async (url, ship, code) => {
-    const { shipCreds } = await getStorage("shipCreds");
-    console.log("shipCreds in store", shipCreds);
     const res = await connectToShip(url, code);
     if (res.ok) {
       set({ api: newApi(url, ship, code) });
@@ -45,9 +42,9 @@ export const useStore = create((set, get) => ({
         })
         .then((res) => {
           // TODO: I think this works but should revisit, add to noKnox component
-          if (res.initial.knox)
+          if (res.initial.knox) {
             return sendMessage({ type: "setupStatus", status: "ok" });
-          else return sendMessage({ type: "setupStatus", status: "noKnox" });
+          } else return sendMessage({ type: "setupStatus", status: "noKnox" });
         });
     } else if (res === "badURL") {
       sendMessage({
