@@ -75,12 +75,12 @@ async function messageListener() {
         scryVault();
         break;
       }
-      case "stateTest": {
-        console.log("state in bg", state);
+      case "logout": {
+        state.setSecret("");
         break;
       }
-      case "clearSecretTest": {
-        state.setSecret("");
+      case "stateTest": {
+        console.log("state in bg", state);
         break;
       }
       default:

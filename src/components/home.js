@@ -3,10 +3,13 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { sendMessage } from "../utils";
 
-import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowPathIcon,
+  LockClosedIcon,
+  CogIcon,
+  ArrowsPointingOutIcon,
+} from "@heroicons/react/24/outline";
 import { getStorage } from "../storage";
-
-import knoxBlack from "../../public/knox-100-black.png";
 
 export function Home() {
   const navigate = useNavigate();
@@ -47,6 +50,11 @@ export function Home() {
     chrome.runtime.sendMessage({ type: "openKnoxTab" }, (res) => {
       if (res?.message === "noSecret") navigate("/secret");
     });
+  }
+
+  function handleLogOut() {
+    sendMessage({ type: "logout" });
+    navigate("/secret");
   }
 
   return (
@@ -101,29 +109,40 @@ export function Home() {
         </>
       ) : (
         <>
-          <div className="flex py-2 justify-around border">
+          <div className="flex p-2 justify-around">
             <button
               onClick={() => sendMessage({ type: "scryVault" })}
-              className="border border-black rounded"
+              className="border border-black rounded w-[50px] hover:scale-125"
               title="refresh"
             >
-              <ArrowPathIcon className="refreshIcon" />
+              <ArrowPathIcon className="homeIcon" />
+            </button>
+            <button
+              // TODO: wire up this button
+              onClick={() => console.log("open settings")}
+              className="border border-black rounded w-[50px] hover:scale-125"
+              title="settings"
+            >
+              <CogIcon className="homeIcon" />
             </button>
             <button
               onClick={handleOpenKnox}
-              className="border border-black rounded"
+              className="border border-black rounded w-[50px] hover:scale-125"
+              title="open app"
             >
-              <img
-                src={knoxBlack}
-                alt="knox icon"
-                className="knoxIcon"
-                title="open in fullscreen"
-              />
+              <ArrowsPointingOutIcon className="homeIcon" />
+            </button>
+            <button
+              onClick={handleLogOut}
+              className="border border-black rounded w-[50px] hover:scale-125"
+              title="log out"
+            >
+              <LockClosedIcon className="homeIcon" />
             </button>
           </div>
           <div>
             <p>testing buttons</p>
-            {/* TODO: getState button only for testing */}
+            {/* // TODO: getState button only for testing */}
             <button
               style={{ width: "65%" }}
               onClick={() => sendMessage({ type: "stateTest" })}

@@ -10,8 +10,13 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-width: 300px;
+  background-color: #D9D6D4;
+  border: 1px solid black;
+  border-top: 4px solid black;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
   /* min-height: 150px; */
-  /* padding: 10px 0 25px 0; */
+  padding: 10px 0 25px 0;
 }
 
 code {
@@ -37,6 +42,11 @@ code {
 
 .navDisabled {
   color: #9ca3af;
+}
+
+.homeIcon {
+  height: 50px;
+  width: 50px;
 }
 
 .knoxIcon {
