@@ -29,7 +29,6 @@ export function newApi(url, ship, code) {
 }
 
 export async function scryVault() {
-  console.log("in scry");
   const state = useStore.getState();
   const { api, secret } = state;
   // TODO: handle error here/remove log

@@ -6,7 +6,6 @@ import { getStorage } from "./storage";
 import { Home } from "./components/home";
 import { Setup } from "./components/setup";
 import { Secret } from "./components/secret";
-import { SecretSetup } from "./components/secretSetup";
 import { NoKnox } from "./components/noKnox";
 
 function App() {
@@ -18,10 +17,10 @@ function App() {
     // eslint-disable-next-line no-undef
     chrome.runtime.sendMessage({ type: "getState" }, async (res) => {
       const { api, secret } = res.state;
-      const { url, shipCreds } = await getStorage(["url", "shipCreds"]);
+      const { shipCreds } = await getStorage("shipCreds");
       setNavSet(true);
 
-      if (!url || !shipCreds) {
+      if (!shipCreds?.url || !shipCreds?.ship || !shipCreds?.code) {
         return navigate("/setup");
       }
       if (!api || !secret) {
@@ -43,7 +42,6 @@ function App() {
         <Routes>
           <Route path={"/"} exact={true} element={<Home />} />
           <Route path={"/setup"} exact={true} element={<Setup />} />
-          <Route path={"/secretSetup"} exact={true} element={<SecretSetup />} />
           <Route path={"/secret"} exact={true} element={<Secret />} />
           <Route path={"/noKnox"} exact={true} element={<NoKnox />} />
         </Routes>

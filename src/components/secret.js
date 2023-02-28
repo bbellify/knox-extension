@@ -9,17 +9,16 @@ export function Secret() {
   const navigate = useNavigate();
   const [secret, setSecret] = useState("");
   const [shipCreds, setShipCreds] = useState(null);
-  const [url, setUrl] = useState("");
   const [secretError, setSecretError] = useState(null);
 
   useEffect(() => {
     async function getShipCreds() {
-      const { shipCreds, url } = await getStorage(["shipCreds", "url"]);
+      const { shipCreds, url } = await getStorage("shipCreds");
       // TODO: handle if no shipCreds
       setShipCreds(shipCreds);
       setUrl(url);
+      console.log("shipCreds", shipCreds);
     }
-
     getShipCreds();
   }, []);
 
@@ -37,11 +36,6 @@ export function Secret() {
       sendMessage({
         type: "setSecret",
         secret: secret,
-        url: url,
-        shipCreds: {
-          ship: aesDecrypt(shipCreds.ship, secret),
-          code: aesDecrypt(shipCreds.code, secret),
-        },
       });
       return navigate("/");
     } else {
@@ -51,20 +45,24 @@ export function Secret() {
 
   return (
     <>
-      <h2>secret</h2>
-      <button onClick={() => navigate("/")}>test home</button>
-      <p>set your secret</p>
-      <input name="secret" value={secret} onChange={handleInput} />
-      {/* TODO: add a check here to validate they're the same, enter twice */}
-      <button
-        style={{ width: "65%" }}
-        onClick={() => {
-          validateSecret();
-        }}
-      >
-        set secret
-      </button>
-      {secretError && <p>{secretError}</p>}
+      <div className="flex flex-col mt-3 h-[120px] items-center">
+        <p>Log in to Knox:</p>
+        <input
+          name="secret"
+          value={secret}
+          onChange={handleInput}
+          className="border border-black w-3/5 mt-2 mb-1 px-3 py-1"
+        />
+        <button
+          className="border border-black px-2 py-1"
+          onClick={validateSecret}
+        >
+          log in
+        </button>
+        {secretError && (
+          <p className="text-red-500 font-bold mt-2">{secretError}</p>
+        )}
+      </div>
     </>
   );
 }

@@ -49,8 +49,6 @@ export function Home() {
         alignItems: "center",
       }}
     >
-      <button onClick={() => navigate("/setup")}>test to setup</button>
-      <button onClick={() => navigate("/secret")}>test to secret</button>
       <button onClick={() => sendMessage({ type: "scryVault" })}>
         <ArrowPathIcon className="refreshIcon" />
       </button>
@@ -112,16 +110,10 @@ export function Home() {
               marginTop: "20px",
             }}
           >
-            <button
-              style={{ width: "65%" }}
-              onClick={() => sendMessage({ type: "setUrl", url: "" })}
-            >
-              clear url
-            </button>
             {/* TODO: getState button only for testing */}
             <button
               style={{ width: "65%" }}
-              onClick={() => sendMessage({ type: "getState" })}
+              onClick={() => sendMessage({ type: "stateTest" })}
             >
               log state in bg
             </button>

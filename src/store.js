@@ -15,7 +15,10 @@ export const useStore = create((set, get) => ({
   },
   setSecret: (secret) => {
     set({ secret: secret });
-    sendMessage({ type: "secretSet" });
+    // TODO: for testing, remove
+    setTimeout(() => {
+      set({ secret: "" });
+    }, 3000);
   },
   setError: (error) => set({ error: error }),
   setSuggestion: (suggestion) => {
@@ -32,7 +35,9 @@ export const useStore = create((set, get) => ({
   setTest: (test) => set({ test: test }),
   connect: async (url, ship, code) => {
     const res = await connectToShip(url, code);
+
     if (res.ok) {
+      // TODO: handle if ship is wrong, connect method only uses url/code
       set({ api: newApi(url, ship, code) });
       // check ship for knox, tell them to download if not present
       get()
@@ -43,7 +48,10 @@ export const useStore = create((set, get) => ({
         .then((res) => {
           // TODO: I think this works but should revisit, add to noKnox component
           if (res.initial.knox) {
-            return sendMessage({ type: "setupStatus", status: "ok" });
+            return sendMessage({
+              type: "setupStatus",
+              status: "connected",
+            });
           } else return sendMessage({ type: "setupStatus", status: "noKnox" });
         });
     } else if (res === "badURL") {
@@ -55,8 +63,8 @@ export const useStore = create((set, get) => ({
     } else {
       sendMessage({
         type: "setupStatus",
-        error: "ship",
-        status: "something went wrong - check your ship and code",
+        error: "code",
+        status: "check your ship and code",
       });
     }
   },

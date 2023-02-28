@@ -10,7 +10,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-width: 300px;
-  min-height: 400px;
+  /* min-height: 150px; */
+  /* padding: 10px 0 25px 0; */
 }
 
 code {
@@ -26,4 +27,14 @@ code {
   color: black;
   height: 20px;
   width: 20px;
+}
+
+.navArrow {
+  color: black;
+  height: 20px;
+  width: 20px;
+}
+
+.navDisabled {
+  color: #9ca3af;
 }

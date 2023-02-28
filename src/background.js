@@ -1,8 +1,8 @@
 /* eslint-disable no-undef */
 import { useStore } from "./store";
 import { setStorage, getStorage } from "./storage";
-import { scryVault } from "./urbit";
-import { clearIcon, setSuggestionIcon } from "./utils";
+import { scryVault, validateSecret } from "./urbit";
+import { clearIcon, setSuggestionIcon, aesDecrypt } from "./utils";
 console.log("in background");
 
 async function init() {
@@ -32,29 +32,32 @@ async function messageListener() {
         sendResponse({ state: state });
         break;
       }
-      case "setUrl": {
-        if (!message.url) return setStorage({ url: null });
-        setStorage({ url: message.url });
-        sendResponse({ status: "urlSet" });
+      case "connectShipSetup": {
+        state.connect(message.url, message.ship, message.code);
         break;
       }
-      case "connectShipSetup": {
-        const { url } = await getStorage("url");
-        state.connect(url, message.ship, message.code);
+      case "saveCreds": {
+        state.setSecret(message.secret);
+        setStorage({ shipCreds: message.shipCreds });
+        scryVault();
         break;
       }
       case "setSecret": {
         state.setSecret(message.secret);
-        if (message.url && message.shipCreds) {
+        if (!Object.keys(state?.api).length) {
+          const shipCreds = await getStorage("shipCreds");
           state.setApi(
-            message.url,
-            message.shipCreds.ship,
-            message.shipCreds.code
+            aesDecrypt(shipCreds.url, message.secret),
+            aesDecrypt(shipCreds.ship, message.secret),
+            aesDecrypt(shipCreds.code, message.secret)
           );
         }
         break;
       }
       case "setSuggestion": {
+        // TODO: this is for protecting against changes in popup
+        if (message.suggestion.website === "phngmkdaejdfgjhdcddcmeniaddocbkc")
+          return;
         state.setSuggestion(message.suggestion);
         if (message.suggestion) setSuggestionIcon();
         if (!message.suggestion) clearIcon();
@@ -69,6 +72,10 @@ async function messageListener() {
       }
       case "scryVault": {
         scryVault();
+        break;
+      }
+      case "stateTest": {
+        console.log("state in bg", state);
         break;
       }
       default:
