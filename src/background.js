@@ -64,9 +64,10 @@ async function messageListener() {
         break;
       }
       case "openKnoxTab": {
-        const { url } = await getStorage("url");
+        if (!state.secret) return sendResponse({ message: "noSecret" });
+        const { shipCreds } = await getStorage("shipCreds");
         chrome.tabs.create({
-          url: `${url}/apps/knox`,
+          url: `${aesDecrypt(shipCreds.url, state.secret)}/apps/knox`,
         });
         break;
       }
@@ -76,6 +77,10 @@ async function messageListener() {
       }
       case "stateTest": {
         console.log("state in bg", state);
+        break;
+      }
+      case "clearSecretTest": {
+        state.setSecret("");
         break;
       }
       default:

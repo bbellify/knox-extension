@@ -31,19 +31,15 @@ export function Setup() {
   useEffect(() => {
     // TODO: change this to checking storage for URL and ship creds
     chrome.runtime.onMessage.addListener(function (message) {
-      console.log("message in fe", message);
       if (message.type === "setupStatus") {
         if (message.error) {
           if (message.error === "url") {
             setUrlError(message.status);
-            // setUrlSet(false);
-            setStep(1);
             return;
           }
           if (message.error === "code") {
             setUrlError("");
             setShipError(message.status);
-            setStep(1);
             return;
           }
         } else {

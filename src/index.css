@@ -25,8 +25,8 @@ code {
 
 .refreshIcon {
   color: black;
-  height: 20px;
-  width: 20px;
+  height: 30px;
+  width: 30px;
 }
 
 .navArrow {
@@ -37,4 +37,9 @@ code {
 
 .navDisabled {
   color: #9ca3af;
+}
+
+.knoxIcon {
+  height: 30px;
+  width: 30px;
 }

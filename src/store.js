@@ -16,9 +16,9 @@ export const useStore = create((set, get) => ({
   setSecret: (secret) => {
     set({ secret: secret });
     // TODO: for testing, remove
-    setTimeout(() => {
-      set({ secret: "" });
-    }, 3000);
+    // setTimeout(() => {
+    //   set({ secret: "" });
+    // }, 3000);
   },
   setError: (error) => set({ error: error }),
   setSuggestion: (suggestion) => {

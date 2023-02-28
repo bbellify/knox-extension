@@ -13,10 +13,9 @@ export function Secret() {
 
   useEffect(() => {
     async function getShipCreds() {
-      const { shipCreds, url } = await getStorage("shipCreds");
+      const { shipCreds } = await getStorage("shipCreds");
       // TODO: handle if no shipCreds
       setShipCreds(shipCreds);
-      setUrl(url);
       console.log("shipCreds", shipCreds);
     }
     getShipCreds();

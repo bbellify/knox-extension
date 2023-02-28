@@ -6,6 +6,8 @@ import { sendMessage } from "../utils";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { getStorage } from "../storage";
 
+import knoxBlack from "../../public/knox-100-black.png";
+
 export function Home() {
   const navigate = useNavigate();
   const [suggestion, setSuggestion] = useState(false);
@@ -41,17 +43,15 @@ export function Home() {
     });
   }
 
+  function handleOpenKnox() {
+    chrome.runtime.sendMessage({ type: "openKnoxTab" }, (res) => {
+      if (res?.message === "noSecret") navigate("/secret");
+    });
+  }
+
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      <button onClick={() => sendMessage({ type: "scryVault" })}>
-        <ArrowPathIcon className="refreshIcon" />
-      </button>
+    <div className="flex-col">
+      <p>knox, your web2 password vault</p>
       {suggestion ? (
         <>
           <p>save this entry?</p>
@@ -101,15 +101,28 @@ export function Home() {
         </>
       ) : (
         <>
-          <p>welcome to knox, your web2 password vault</p>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              marginTop: "20px",
-            }}
-          >
+          <div className="flex py-2 justify-around border">
+            <button
+              onClick={() => sendMessage({ type: "scryVault" })}
+              className="border border-black rounded"
+              title="refresh"
+            >
+              <ArrowPathIcon className="refreshIcon" />
+            </button>
+            <button
+              onClick={handleOpenKnox}
+              className="border border-black rounded"
+            >
+              <img
+                src={knoxBlack}
+                alt="knox icon"
+                className="knoxIcon"
+                title="open in fullscreen"
+              />
+            </button>
+          </div>
+          <div>
+            <p>testing buttons</p>
             {/* TODO: getState button only for testing */}
             <button
               style={{ width: "65%" }}
@@ -122,17 +135,16 @@ export function Home() {
               onClick={async () =>
                 sendMessage({
                   type: "default",
-                  message: await getStorage(["vault", "url", "shipCreds"]),
+                  message: await getStorage(["vault", "shipCreds"]),
                 })
               }
             >
-              log storage - vault, url, shipCreds
+              log storage - vault, shipCreds
             </button>
             <button
               style={{ width: "65%" }}
               onClick={() => {
                 chrome.storage.local.remove("shipCreds");
-                chrome.storage.local.remove("url");
                 chrome.storage.local.remove("vault");
               }}
             >
@@ -140,9 +152,9 @@ export function Home() {
             </button>
             <button
               style={{ width: "65%" }}
-              onClick={() => sendMessage({ type: "openKnoxTab" })}
+              onClick={() => sendMessage({ type: "clearSecretTest" })}
             >
-              open Knox app
+              clear secret
             </button>
           </div>
         </>
