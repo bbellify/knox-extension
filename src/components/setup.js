@@ -5,11 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 import { aesEncrypt, sendMessage } from "../utils";
 import { newApi } from "../urbit";
-
-import {
-  ArrowSmallLeftIcon,
-  ArrowSmallRightIcon,
-} from "@heroicons/react/24/outline";
+import { navPrev, navNext } from "../icons";
 
 export function Setup() {
   const navigate = useNavigate();
@@ -213,22 +209,20 @@ export function Setup() {
         <button
           disabled={step === 1}
           onClick={handlePrevious}
-          className={`mr-2 ${step === 1 ? "null" : "hover:scale-150"}`}
+          className={`mr-2 w-[25px] ${
+            step === 1 ? "navDisabled" : "hover:scale-150"
+          }`}
         >
-          <ArrowSmallLeftIcon
-            className={`navArrow ${step === 1 ? "navDisabled" : null}`}
-          />
+          {navPrev()}
         </button>
         <button
           disabled={isNextDisabled()}
           onClick={handleNext}
-          className={`ml-2 ${
+          className={`ml-2 w-[25px] ${
             isNextDisabled() ? "navDisabled" : "hover:scale-150"
           }`}
         >
-          <ArrowSmallRightIcon
-            className={`navArrow ${isNextDisabled() ? "navDisabled" : null}`}
-          />
+          {navNext()}
         </button>
       </div>
     </div>

@@ -3,16 +3,15 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { sendMessage } from "../utils";
 
-import {
-  ArrowPathIcon,
-  LockClosedIcon,
-  CogIcon,
-  ArrowsPointingOutIcon,
-} from "@heroicons/react/24/outline";
+import { generateIcon, lockIcon, expandIcon, refreshIcon } from "../icons";
+
 import { getStorage } from "../storage";
 
 export function Home() {
   const navigate = useNavigate();
+  const [spin, setSpin] = useState(false);
+  const [generateShake, setGenerateShake] = useState(false);
+  const [logoutShake, setLogoutShake] = useState(false);
   const [suggestion, setSuggestion] = useState(false);
   const [sugForm, setSugForm] = useState({
     website: "",
@@ -46,6 +45,23 @@ export function Home() {
     });
   }
 
+  function handleGenerate() {
+    console.log("generate");
+    setGenerateShake(true);
+    // send message type:"generate"
+    setTimeout(() => {
+      setGenerateShake(false);
+    }, 300);
+  }
+
+  function handleRefresh() {
+    setSpin(true);
+    sendMessage({ type: "scryVault" });
+    setTimeout(() => {
+      setSpin(false);
+    }, 1000);
+  }
+
   function handleOpenKnox() {
     chrome.runtime.sendMessage({ type: "openKnoxTab" }, (res) => {
       if (res?.message === "noSecret") navigate("/secret");
@@ -53,8 +69,11 @@ export function Home() {
   }
 
   function handleLogOut() {
+    setLogoutShake(true);
     sendMessage({ type: "logout" });
-    navigate("/secret");
+    setTimeout(() => {
+      navigate("/secret");
+    }, 300);
   }
 
   return (
@@ -110,34 +129,44 @@ export function Home() {
       ) : (
         <>
           <div className="flex p-2 justify-around">
+            {/* TODO: wire up the generate password button */}
+            {/* TODO: generated password saves to state, persists until cleared or suggestion set. render component underneath buttons with generated and clear button and copy button */}
             <button
-              onClick={() => sendMessage({ type: "scryVault" })}
-              className="border border-black rounded w-[50px] hover:scale-125"
-              title="refresh"
+              onClick={handleGenerate}
+              className="border border-black rounded w-[50px] hover:scale-125 p-1"
+              title="generate password"
             >
-              <ArrowPathIcon className="homeIcon" />
+              <div className={`${generateShake ? "generateShake" : null}`}>
+                {generateIcon()}
+              </div>
             </button>
+
             <button
-              // TODO: wire up this button
-              onClick={() => console.log("open settings")}
-              className="border border-black rounded w-[50px] hover:scale-125"
-              title="settings"
+              onClick={handleRefresh}
+              className="border border-black rounded w-[50px] hover:scale-125 p-1"
+              title="get latest"
             >
-              <CogIcon className="homeIcon" />
+              <div className={`${spin ? "motion-safe:animate-spin" : null}`}>
+                {refreshIcon()}
+              </div>
             </button>
+
             <button
               onClick={handleOpenKnox}
-              className="border border-black rounded w-[50px] hover:scale-125"
+              className="border border-black rounded w-[50px] hover:scale-125 p-1"
               title="open app"
             >
-              <ArrowsPointingOutIcon className="homeIcon" />
+              {expandIcon()}
             </button>
+
             <button
               onClick={handleLogOut}
-              className="border border-black rounded w-[50px] hover:scale-125"
+              className="border border-black rounded w-[50px] hover:scale-125 p-1"
               title="log out"
             >
-              <LockClosedIcon className="homeIcon" />
+              <div className={`${logoutShake ? "logoutShake" : null}`}>
+                {lockIcon()}
+              </div>
             </button>
           </div>
           <div>

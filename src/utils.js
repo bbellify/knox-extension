@@ -54,6 +54,9 @@ export function aesEncrypt(string, secret) {
 // for decrypting a value received from knox
 export function aesDecrypt(string, secret) {
   if (!string || !secret) return;
-  const decrypted = AES.decrypt(string, secret).toString(CryptoJS.enc.Utf8);
-  return decrypted;
+  const decrypted = AES.decrypt(string, secret);
+
+  if (decrypted.toString(CryptoJS.enc.Utf8)) {
+    return decrypted.toString(CryptoJS.enc.Utf8);
+  } else return undefined;
 }

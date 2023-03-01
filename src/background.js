@@ -92,12 +92,13 @@ async function messageListener() {
 
 chrome.tabs.onUpdated.addListener((tab) => {
   chrome.tabs.get(tab, async (current_tab_info) => {
-    if (current_tab_info.status === "complete") {
-      await chrome.scripting.executeScript({
-        files: ["content.js"],
-        target: { tabId: tab },
-      });
-    }
+    if (!current_tab_info.url.includes("chrome://"))
+      if (current_tab_info.status === "complete") {
+        await chrome.scripting.executeScript({
+          files: ["content.js"],
+          target: { tabId: tab },
+        });
+      }
   });
 });
 

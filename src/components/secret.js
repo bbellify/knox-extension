@@ -27,10 +27,10 @@ export function Secret() {
 
   function validateSecret() {
     if (!secret) return setSecretError("enter your secret");
-    if (
-      aesDecrypt(shipCreds.ship, secret) &&
-      aesDecrypt(shipCreds.code, secret)
-    ) {
+    const ship = aesDecrypt(shipCreds.ship, secret);
+    const code = aesDecrypt(shipCreds.code, secret);
+
+    if (ship && code) {
       setSecretError("");
       sendMessage({
         type: "setSecret",

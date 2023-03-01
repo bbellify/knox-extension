@@ -3,7 +3,6 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { sendMessage } from "../utils";
 
-import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { getStorage } from "../storage";
 
 export function NoKnox() {
