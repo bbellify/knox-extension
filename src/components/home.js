@@ -90,7 +90,7 @@ export function Home() {
   }
 
   return (
-    <div className="flex-col">
+    <div className="flex-col mt-4 mb-8">
       <p className="mb-3">knox, your web2 password vault</p>
       <div className="my-1 border-t border-black w-full"></div>
 

@@ -20,8 +20,6 @@ body {
   border-top: 4px solid black;
   border-top-right-radius: 10px;
   border-top-left-radius: 10px;
-  /* min-height: 150px; */
-  padding: 10px 0 25px 0;
 }
 
 code {

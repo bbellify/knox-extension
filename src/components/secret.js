@@ -50,7 +50,7 @@ export function Secret() {
 
   return (
     <>
-      <div className="flex flex-col mt-3 h-[120px] items-center">
+      <div className="flex flex-col mt-5 h-[120px] items-center">
         <p>Log in to Knox:</p>
         <input
           name="secret"

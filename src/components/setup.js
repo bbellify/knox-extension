@@ -155,7 +155,7 @@ export function Setup() {
   }
 
   return (
-    <div className="flex-col mt-3 h-[250px] items-center justify-items-center w-[300px]">
+    <div className="flex-col my-5 h-[250px] items-center justify-items-center w-[300px]">
       <p className="font-bold my-2">
         Welcome to Knox, your web2 password vault.
       </p>
