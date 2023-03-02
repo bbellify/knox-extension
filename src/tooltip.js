@@ -1,5 +1,5 @@
 import { createPopper } from "@popperjs/core";
-import { aesDecrypt, sendMessage } from "./utils";
+import { aesDecrypt } from "./utils";
 
 export function addTooltipCSS() {
   const style = document.createElement("style");
@@ -178,7 +178,8 @@ export function addNoSecretTooltip(
       aesDecrypt(shipCreds.ship, secretInput.value) &&
       aesDecrypt(shipCreds.code, secretInput.value)
     ) {
-      sendMessage({
+      // eslint-disable-next-line no-undef
+      chrome.runtime.sendMessage({
         type: "setSecret",
         secret: secretInput.value,
         url: url,

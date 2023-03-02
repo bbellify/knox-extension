@@ -75,7 +75,7 @@ async function messageListener() {
         scryVault();
         break;
       }
-      case "logout": {
+      case "lock": {
         state.setSecret("");
         break;
       }

@@ -2,6 +2,7 @@
 import AES from "crypto-js/aes";
 import CryptoJS from "crypto-js";
 
+// TODO: delete this I think
 export function sendMessage(message) {
   chrome.runtime.sendMessage(message, (response) => {
     if (chrome.runtime.lastError) {

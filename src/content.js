@@ -1,4 +1,3 @@
-import { sendMessage } from "./utils";
 import { addTooltip, addNoSecretTooltip, clearTooltip } from "./tooltip";
 import { getStorage } from "./storage";
 console.log("in content");
@@ -124,7 +123,8 @@ function handleNoEntry() {
   submitButton?.addEventListener("click", () => {
     const newUsername = username?.value;
     const newPassword = pword?.value;
-    sendMessage({
+    // eslint-disable-next-line no-undef
+    chrome.runtime.sendMessage({
       type: "setSuggestion",
       suggestion: {
         website,

@@ -13,8 +13,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  min-width: 300px;
+  min-width: 250px;
   background-color: #D9D6D4;
+  /* background-color: whitesmoke; */
   border: 1px solid black;
   border-top: 4px solid black;
   border-top-right-radius: 10px;
@@ -36,12 +37,16 @@ code {
   color: #9ca3af;
 }
 
-.generateShake {
+.shakeX {
   animation: shakeX 300ms;
 }
 
-.logoutShake {
+.lockShake {
   animation: shakeY 300ms;
+}
+
+.refresh {
+  animation: refresh 500ms linear infinite;
 }
 
 @keyframes shakeX {
@@ -65,5 +70,14 @@ code {
   }
   95% {
     transform: translateY(-4px)
+  }
+}
+
+@keyframes refresh {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }

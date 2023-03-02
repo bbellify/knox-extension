@@ -2,21 +2,20 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { aesDecrypt, sendMessage } from "../utils";
+import { aesDecrypt } from "../utils";
 import { getStorage } from "../storage";
 
 export function Secret() {
   const navigate = useNavigate();
   const [secret, setSecret] = useState("");
+  const [shake, setShake] = useState(false);
   const [shipCreds, setShipCreds] = useState(null);
-  const [secretError, setSecretError] = useState(null);
 
   useEffect(() => {
     async function getShipCreds() {
       const { shipCreds } = await getStorage("shipCreds");
       // TODO: handle if no shipCreds
       setShipCreds(shipCreds);
-      console.log("shipCreds", shipCreds);
     }
     getShipCreds();
   }, []);
@@ -26,20 +25,27 @@ export function Secret() {
   }
 
   function validateSecret() {
-    if (!secret) return setSecretError("enter your secret");
     const ship = aesDecrypt(shipCreds.ship, secret);
     const code = aesDecrypt(shipCreds.code, secret);
 
     if (ship && code) {
-      setSecretError("");
-      sendMessage({
+      // eslint-disable-next-line no-undef
+      chrome.runtime.sendMessage({
         type: "setSecret",
         secret: secret,
       });
       return navigate("/");
     } else {
-      return setSecretError("invalid secret");
+      return handleInvalidSecret();
     }
+  }
+
+  function handleInvalidSecret() {
+    setSecret("");
+    setShake(true);
+    setTimeout(() => {
+      setShake(false);
+    }, 1500);
   }
 
   return (
@@ -50,7 +56,9 @@ export function Secret() {
           name="secret"
           value={secret}
           onChange={handleInput}
-          className="border border-black w-3/5 mt-2 mb-1 px-3 py-1"
+          className={`border border-black w-3/5 mt-2 mb-1 px-3 py-1 ${
+            shake ? "shakeX border-red-400" : null
+          }`}
         />
         <button
           className="border border-black px-2 py-1"
@@ -58,9 +66,6 @@ export function Secret() {
         >
           log in
         </button>
-        {secretError && (
-          <p className="text-red-500 font-bold mt-2">{secretError}</p>
-        )}
       </div>
     </>
   );

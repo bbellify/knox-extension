@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { sendMessage, clearIcon } from "./utils";
+import { clearIcon } from "./utils";
 import { connectToShip, newApi, scryVault } from "./urbit";
 
 export const useStore = create((set, get) => ({
@@ -48,20 +48,29 @@ export const useStore = create((set, get) => ({
         .then((res) => {
           // TODO: I think this works but should revisit, add to noKnox component
           if (res.initial.knox) {
-            return sendMessage({
+            // eslint-disable-next-line no-undef
+            return chrome.runtime.sendMessage({
               type: "setupStatus",
               status: "connected",
             });
-          } else return sendMessage({ type: "setupStatus", status: "noKnox" });
+          } else {
+            // eslint-disable-next-line no-undef
+            return chrome.runtime.sendMessage({
+              type: "setupStatus",
+              status: "noKnox",
+            });
+          }
         });
     } else if (res === "badURL") {
-      sendMessage({
+      // eslint-disable-next-line no-undef
+      chrome.runtime.sendMessage({
         type: "setupStatus",
         error: "url",
         status: "something went wrong - check your URL",
       });
     } else {
-      sendMessage({
+      // eslint-disable-next-line no-undef
+      chrome.runtime.sendMessage({
         type: "setupStatus",
         error: "code",
         status: "check your ship and code",

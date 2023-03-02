@@ -3,12 +3,13 @@ import React, { useEffect, useState } from "react";
 import * as bcrypt from "bcryptjs";
 import { useNavigate } from "react-router-dom";
 
-import { aesEncrypt, sendMessage } from "../utils";
+import { aesEncrypt } from "../utils";
 import { newApi } from "../urbit";
 import { navPrev, navNext } from "../icons";
 
 export function Setup() {
   const navigate = useNavigate();
+  const [shake, setShake] = useState(false);
   const [step, setStep] = useState(1);
   const [urlError, setUrlError] = useState("");
   const [shipError, setShipError] = useState("");
@@ -21,7 +22,6 @@ export function Setup() {
     code: "lathus-worsem-bortem-padmel",
   });
   const [secretForm, setSecretForm] = useState("test");
-  const [secretError, setSecretError] = useState("");
   const [api, setApi] = useState(null);
 
   useEffect(() => {
@@ -76,7 +76,8 @@ export function Setup() {
   function handleConnectShip() {
     // TODO: handle the !urlForm errror
     if (!urlForm) return;
-    sendMessage({
+    // eslint-disable-next-line no-undef
+    chrome.runtime.sendMessage({
       type: "connectShipSetup",
       url: urlForm,
       ship: prepShipName(shipForm.ship).trim(),
@@ -85,8 +86,6 @@ export function Setup() {
   }
 
   function handleValidate() {
-    // if !secret set secret error
-    if (!secretForm) return setSecretError("enter your secret");
     api
       .scry({
         app: "knox",
@@ -95,7 +94,8 @@ export function Setup() {
       .then((res) => {
         if (res.secret) {
           if (bcrypt.compareSync(secretForm, res.secret)) {
-            sendMessage({
+            // eslint-disable-next-line no-undef
+            chrome.runtime.sendMessage({
               type: "saveCreds",
               secret: secretForm,
               shipCreds: {
@@ -107,7 +107,11 @@ export function Setup() {
             return navigate("/");
           } else {
             // wrong secret
-            setSecretError("invalid secret");
+            setShake(true);
+            setSecretForm("");
+            setTimeout(() => {
+              setShake(false);
+            }, 1500);
           }
         }
       });
@@ -119,7 +123,6 @@ export function Setup() {
         handleConnectShip();
         setShipError("");
         setUrlError("");
-        setSecretError("");
         break;
       }
       case 2: {
@@ -152,7 +155,7 @@ export function Setup() {
   }
 
   return (
-    <div className="flex-col mt-3 h-[250px] items-center justify-items-center">
+    <div className="flex-col mt-3 h-[250px] items-center justify-items-center w-[300px]">
       <p className="font-bold my-2">
         Welcome to Knox, your web2 password vault.
       </p>
@@ -198,11 +201,13 @@ export function Setup() {
             name="secret"
             value={secretForm}
             onChange={handleSecretForm}
-            className="border border-black w-3/5 mb-2 px-3 py-1"
+            className={`border border-black w-3/5 mb-2 px-3 py-1 ${
+              shake ? "shakeX border-red-400" : null
+            }`}
           />
-          {secretError && (
+          {/* {secretError && (
             <p className="text-red-500 font-bold mt-2">{secretError}</p>
-          )}
+          )} */}
         </div>
       )}
       <div className="flex justify-center mt-2 pb-4">
