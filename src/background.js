@@ -63,15 +63,6 @@ async function messageListener() {
         if (!message.suggestion) clearIcon();
         break;
       }
-      case "openKnoxTab": {
-        // TODO: this works but creates an error when successfully opening tab because popup is closed before a res can be sent
-        if (!state.secret) return sendResponse({ message: "noSecret" });
-        const { shipCreds } = await getStorage("shipCreds");
-        chrome.tabs.create({
-          url: `${aesDecrypt(shipCreds.url, state.secret)}/apps/knox`,
-        });
-        break;
-      }
       case "scryVault": {
         scryVault();
         break;

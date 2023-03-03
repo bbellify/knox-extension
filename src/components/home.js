@@ -1,6 +1,8 @@
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getStorage } from "../storage";
+import { aesDecrypt } from "../utils";
 
 import {
   generateIcon,
@@ -14,6 +16,7 @@ import {
 export function Home() {
   const navigate = useNavigate();
   const [spin, setSpin] = useState(false);
+  const [secret, setSecret] = useState("");
   const [generateShake, setGenerateShake] = useState(false);
   const [showGenerated, setShowGenerated] = useState(false);
   const [lockShake, setLockShake] = useState(false);
@@ -27,7 +30,8 @@ export function Home() {
   useEffect(() => {
     // TODO: no else here, do I need a catch in case of runtime busted?
     chrome.runtime.sendMessage({ type: "getState" }, (res) => {
-      const { suggestion } = res.state;
+      const { suggestion, secret } = res.state;
+      setSecret(secret);
 
       if (!suggestion) {
         return;
@@ -69,9 +73,11 @@ export function Home() {
     }, 500);
   }
 
-  function handleOpenKnox() {
-    chrome.runtime.sendMessage({ type: "openKnoxTab" }, (res) => {
-      if (res?.message === "noSecret") navigate("/secret");
+  async function handleOpenKnox() {
+    if (!secret) return navigate("/secret");
+    const { shipCreds } = await getStorage("shipCreds");
+    chrome.tabs.create({
+      url: `${aesDecrypt(shipCreds?.url, secret)}/apps/knox`,
     });
   }
 
