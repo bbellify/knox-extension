@@ -2,9 +2,6 @@ import { addTooltip, addNoSecretTooltip, clearTooltip } from "./tooltip";
 import { getStorage } from "./storage";
 console.log("in content");
 
-const logIns = ["username", "email"];
-const passes = ["password"];
-
 document.addEventListener("click", (e) => {
   if (
     e.target.nodeName !== "INPUT" &&
@@ -15,52 +12,8 @@ document.addEventListener("click", (e) => {
 });
 
 const location = window.location.toString();
-const website = new URL(location).hostname.replace("www.", "");
-
-function getInputs() {
-  const allInputs = document.querySelectorAll("input");
-  const allButtons = document.querySelectorAll("button");
-
-  let username;
-  let pword;
-
-  for (let i = 0; i < allInputs.length; i++) {
-    if (logIns.includes(allInputs[i].name)) {
-      username = allInputs[i];
-    }
-    if (allInputs[i].type === "password" || passes.includes(allInputs[i].name))
-      pword = allInputs[i];
-  }
-
-  let submitButton = Array.from(allButtons).find(
-    (button) => button.type === "submit"
-  );
-
-  return [username, pword, submitButton];
-}
-
-let observer = new MutationObserver((mutations) => {
-  // this is meant to catch any time we're only adding tooltip elements to prevent infinite loops
-  // is this enough?
-  for (let mutation of mutations) {
-    if (
-      Array.from(mutation.addedNodes).some((node) => node.id === "tooltip") ||
-      Array.from(mutation.addedNodes).some(
-        (node) => node.id === "knox-style"
-      ) ||
-      Array.from(mutation.removedNodes).some((node) => node.id === "tooltip") ||
-      Array.from(mutation.removedNodes).some((node) => node.id === "knox-style")
-    ) {
-      // TODO: remove these logs
-      return console.log("do nothing");
-    } else {
-      console.log("mutations in else", mutations);
-      init();
-    }
-  }
-});
-
-observer.observe(document, { childList: true, subtree: true });
+// use website for saving suggestion
+// const website = new URL(location).hostname.replace("www.", "");
 
 function init() {
   // eslint-disable-next-line no-undef
@@ -75,64 +28,65 @@ function init() {
 
       if (vault.length) {
         const entries = vault.filter((entry) =>
-          // TODO: replace location with website?
           location.includes(entry.website)
         );
+
         if (entries.length) {
-          if (!secret) {
-            console.log("no secret");
-            const [username, pword] = getInputs();
-            if (username) {
-              return username.addEventListener("click", () =>
-                addNoSecretTooltip(entries, shipCreds, username, pword, url)
-              );
-              // TODO: what to do here? no username input element and no secret
-            } else return;
-          } else {
-            const [username, pword] = getInputs();
-            if (username)
-              username.addEventListener("click", () => {
-                addTooltip(entries, secret, username, pword);
-              });
-            if (pword)
-              pword.addEventListener("click", () => entryToolTip("password"));
-          }
+          document.addEventListener("click", (e) => {
+            if (
+              e.target.tagName === "INPUT" &&
+              e.target.id !== "secret-input"
+            ) {
+              // check if in login input
+              if (
+                e.target.type === "text" ||
+                e.target.type === "email" ||
+                e.target.type === "username"
+              ) {
+                if (!secret) {
+                  addNoSecretTooltip(entries, shipCreds, e.target, url);
+                  return e.target.addEventListener("click", () =>
+                    addNoSecretTooltip(entries, shipCreds, e.target, url)
+                  );
+                } else {
+                  addTooltip(entries, secret, e.target);
+                  return e.target.addEventListener("click", () => {
+                    addTooltip(entries, secret, e.target);
+                  });
+                }
+              }
+            }
+          });
         } else {
-          handleNoEntry();
+          return handleNoEntry();
         }
       } else {
-        handleNoVault();
+        return handleNoVault();
       }
     });
   });
 }
 init();
 
-function entryToolTip(clicked) {
-  console.log(`click in ${clicked}`);
-}
-
-function noEntryToolTip() {
-  console.log("no entry");
-}
-
 function handleNoEntry() {
   // TODO: remove this log
   console.log("in no entry");
-  const [username, pword, submitButton] = getInputs();
-  submitButton?.addEventListener("click", () => {
-    const newUsername = username?.value;
-    const newPassword = pword?.value;
-    // eslint-disable-next-line no-undef
-    chrome.runtime.sendMessage({
-      type: "setSuggestion",
-      suggestion: {
-        website,
-        newUsername,
-        newPassword,
-      },
-    });
-  });
+
+  // handle saving a suggestion here
+
+  // submitButton?.addEventListener("click", () => {
+  //   const newUsername = username?.value;
+  //   const newPassword = pword?.value;
+  //   // eslint-disable-next-line no-undef
+  //   chrome.runtime.sendMessage({
+  //     type: "setSuggestion",
+  //     suggestion: {
+  //       website,
+  //       newUsername,
+  //       newPassword,
+  //     },
+  //   });
+  // });
 }
 
 function handleNoVault() {

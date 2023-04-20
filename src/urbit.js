@@ -1,6 +1,7 @@
 import Urbit from "@urbit/http-api";
-import { setVaultToStorage } from "./storage";
+import { setVaultToStorage, getStorage } from "./storage";
 import { useStore } from "./store";
+import { aesDecrypt } from "./utils";
 
 export async function connectToShip(url, code) {
   const controller = new AbortController();

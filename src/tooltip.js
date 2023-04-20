@@ -94,7 +94,7 @@ export function addTooltipCSS() {
   document.head.appendChild(style);
 }
 
-export function addTooltip(entries, secret, usernameField, passField) {
+export function addTooltip(entries, secret, usernameField) {
   addTooltipCSS();
   if (!secret) return handleNoSecret();
 
@@ -121,7 +121,7 @@ export function addTooltip(entries, secret, usernameField, passField) {
     tooltip.appendChild(entryWrapper);
     entryWrapper.addEventListener("click", () => {
       if (usernameField) usernameField.value = username;
-      if (passField) passField.value = password;
+      if (getPasswordInput()) getPasswordInput().value = password;
       clearTooltip();
     });
   });
@@ -144,20 +144,13 @@ export function addTooltip(entries, secret, usernameField, passField) {
     },
   });
 
-  // TODO: see below
   const allTips = Array.from(document.getElementsByClassName("knox-tooltip"));
   allTips.forEach((tip, i) => {
     return i !== allTips.length - 1 ? tip.remove() : null;
   });
 }
 
-export function addNoSecretTooltip(
-  entries,
-  shipCreds,
-  usernameField,
-  passwordField,
-  url
-) {
+export function addNoSecretTooltip(entries, shipCreds, usernameField, url) {
   addTooltipCSS();
 
   const tooltip = prepTooltip();
@@ -189,9 +182,9 @@ export function addNoSecretTooltip(
         },
       });
       if (usernameField) {
-        addTooltip(entries, secretInput.value, usernameField, passwordField);
+        addTooltip(entries, secretInput.value, usernameField);
         return usernameField.addEventListener("click", () => {
-          addTooltip(entries, secretInput.value, usernameField, passwordField);
+          addTooltip(entries, secretInput.value, usernameField);
         });
       }
     } else {
@@ -214,9 +207,8 @@ export function addNoSecretTooltip(
     },
   });
 
-  // TODO: see below
   const allTips = Array.from(document.getElementsByClassName("knox-tooltip"));
-  allTips.forEach((tip, i) => {
+  allTips.reverse().forEach((tip, i) => {
     return i !== allTips.length - 1 ? tip.remove() : null;
   });
 }
@@ -244,4 +236,15 @@ function prepTooltip() {
 function handleNoSecret() {
   // TODO: finish this
   console.log("no secret in tooltip but there should be");
+}
+
+function getPasswordInput() {
+  let passwordField;
+  const inputElements = document.getElementsByTagName("input");
+  for (let i = 0; i < inputElements.length; i++) {
+    if (inputElements[i].type === "password" && !inputElements[i].disabled) {
+      passwordField = inputElements[i];
+    }
+  }
+  return passwordField;
 }

@@ -3,7 +3,7 @@ import { useStore } from "./store";
 import { setStorage, getStorage } from "./storage";
 import { scryVault, validateSecret } from "./urbit";
 import { clearIcon, setSuggestionIcon, aesDecrypt } from "./utils";
-console.log("in background");
+console.log("in backgroundjs");
 
 async function init() {
   const state = useStore.getState();
@@ -45,7 +45,7 @@ async function messageListener() {
       case "setSecret": {
         state.setSecret(message.secret);
         if (!Object.keys(state?.api).length) {
-          const shipCreds = await getStorage("shipCreds");
+          const { shipCreds } = await getStorage("shipCreds");
           state.setApi(
             aesDecrypt(shipCreds.url, message.secret),
             aesDecrypt(shipCreds.ship, message.secret),
