@@ -1,6 +1,5 @@
 import { addTooltip, addNoSecretTooltip, clearTooltip } from "./tooltip";
 import { getStorage } from "./storage";
-console.log("in content");
 
 document.addEventListener("click", (e) => {
   if (

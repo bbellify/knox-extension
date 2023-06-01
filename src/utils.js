@@ -3,18 +3,6 @@
 import AES from "crypto-js/aes";
 import CryptoJS from "crypto-js";
 
-// TODO: delete this I think
-export function sendMessage(message) {
-  chrome.runtime.sendMessage(message, (response) => {
-    if (chrome.runtime.lastError) {
-      console.log("error");
-    } else {
-      console.log("testing res in util", response);
-      return response;
-    }
-  });
-}
-
 export function setBadge() {
   chrome.action.setBadgeText({ text: "!" });
   chrome.action.setBadgeBackgroundColor({ color: "#ef4444" });

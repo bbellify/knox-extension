@@ -1,9 +1,8 @@
 /* eslint-disable no-undef */
 import { useStore } from "./store";
 import { setStorage, getStorage } from "./storage";
-import { scryVault, generate, getEnty } from "./urbit";
+import { scryVault, getEnty } from "./urbit";
 import { clearIcon, setSuggestionIcon, aesDecrypt } from "./utils";
-console.log("in backgroundjs");
 
 async function init() {
   const state = useStore.getState();
@@ -66,15 +65,10 @@ async function messageListener() {
       }
       case "generate": {
         const generated = await getEnty();
-        console.log("generated", generated);
-        break;
-      }
-      case "stateTest": {
-        console.log("state in bg", state);
         break;
       }
       default:
-        console.log("request", message);
+        console.log("default", message);
         return true;
     }
     return true;

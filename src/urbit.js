@@ -49,29 +49,6 @@ export async function scryVault() {
     .then((res) => setVaultToStorage(res.vault, secret));
 }
 
-export async function generate() {
-  const state = useStore.getState();
-  const { api } = state;
-  // TODO: handle error here/remove log
-  if (!Object.keys(api).length) {
-    return console.log("no api");
-  }
-
-  api
-    .poke({
-      app: "knox",
-      mark: "knox-action",
-      json: {
-        gen: { enty: parseInt(1) },
-      },
-    })
-    .then(() => {
-      // getEnty()
-      return "generated420";
-    })
-    .catch((err) => console.log("error", err));
-}
-
 export function getEnty() {
   const state = useStore.getState();
   const { api, secret } = state;
@@ -90,7 +67,6 @@ export function getEnty() {
       path: "/enty",
     })
     .then((res) => {
-      console.log("res", res);
       // eslint-disable-next-line no-undef
       return chrome.runtime.sendMessage({ generated: res });
     })
