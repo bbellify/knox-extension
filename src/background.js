@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import { useStore } from "./store";
 import { setStorage, getStorage } from "./storage";
-import { scryVault, validateSecret } from "./urbit";
+import { scryVault, generate, getEnty } from "./urbit";
 import { clearIcon, setSuggestionIcon, aesDecrypt } from "./utils";
 console.log("in backgroundjs");
 
@@ -9,12 +9,6 @@ async function init() {
   const state = useStore.getState();
   await state.init();
   messageListener();
-  // finish below init check
-  // checkApiandVaultandWhatelse?()
-
-  // clickListener();
-  // extensionListener();
-  // hotkeyListener();
 }
 init();
 
@@ -28,7 +22,6 @@ async function messageListener() {
 
     switch (message.type) {
       case "getState": {
-        // TODO: add nav to save case
         sendResponse({ state: state });
         break;
       }
@@ -71,6 +64,11 @@ async function messageListener() {
         state.setSecret("");
         break;
       }
+      case "generate": {
+        const generated = await getEnty();
+        console.log("generated", generated);
+        break;
+      }
       case "stateTest": {
         console.log("state in bg", state);
         break;
@@ -79,6 +77,7 @@ async function messageListener() {
         console.log("request", message);
         return true;
     }
+    return true;
   });
 }
 
@@ -93,17 +92,3 @@ chrome.tabs.onUpdated.addListener((tab) => {
       }
   });
 });
-
-// refrence - I might want both activated and updated?
-// chrome.tabs.onActivated.addListener((tab) => {
-//   chrome.tabs.get(tab.tabId, async (current_tab_info) => {
-//     if (current_tab_info.status === "complete") {
-//       const vault = await getStorage(["vault"]);
-//       await chrome.scripting.executeScript({
-//         files: ["content.js"],
-//         target: { tabId: tab.tabId },
-//       });
-//       chrome.tabs.sendMessage(tab.tabId, { type: "content", vault });
-//     }
-//   });
-// });

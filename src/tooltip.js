@@ -18,17 +18,6 @@ export function addTooltipCSS() {
         z-index: 999999;
       }
       
-      #arrow {
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        transform: rotate(45deg);
-        position: absolute;
-        top: -5px;
-        background: inherit;
-        z-index: -1;
-      }
-      
       [id^='entry-wrapper'] {
         background: inherit;
         margin: 0;
@@ -135,7 +124,7 @@ export function addTooltip(entries, secret, usernameField) {
   tooltip.appendChild(tildy);
 
   createPopper(usernameField, tooltip, {
-    placement: "bottom",
+    placement: "top",
     modifiers: {
       name: "offset",
       options: {
@@ -198,7 +187,7 @@ export function addNoSecretTooltip(entries, shipCreds, usernameField, url) {
   });
 
   createPopper(usernameField, tooltip, {
-    placement: "bottom",
+    placement: "top",
     modifiers: {
       name: "offset",
       options: {
@@ -226,9 +215,6 @@ function prepTooltip() {
   tooltip.role = "tooltip";
   tooltip.id = "tooltip";
   tooltip.className = "knox-tooltip";
-  const arrow = document.createElement("div");
-  arrow.id = "arrow";
-  tooltip.appendChild(arrow);
   document.body.appendChild(tooltip);
   return tooltip;
 }

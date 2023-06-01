@@ -1,8 +1,10 @@
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { Suggestion } from "./suggestion";
 import { getStorage } from "../storage";
-import { aesDecrypt } from "../utils";
+import { generatePassword, aesDecrypt } from "../utils";
 
 import {
   generateIcon,
@@ -18,14 +20,9 @@ export function Home() {
   const [spin, setSpin] = useState(false);
   const [secret, setSecret] = useState("");
   const [generateShake, setGenerateShake] = useState(false);
-  const [showGenerated, setShowGenerated] = useState(false);
+  const [generated, setGenerated] = useState("");
+  const [showCopied, setShowCopied] = useState(false);
   const [lockShake, setLockShake] = useState(false);
-  const [suggestion, setSuggestion] = useState(false);
-  const [sugForm, setSugForm] = useState({
-    website: "",
-    username: "",
-    password: "",
-  });
 
   useEffect(() => {
     // TODO: no else here, do I need a catch in case of runtime busted?
@@ -46,19 +43,17 @@ export function Home() {
     });
   }, []);
 
-  function handleInput(e) {
-    const name = e.target.name;
-    setSugForm({
-      ...sugForm,
-      [name]: e.target.value,
+  useEffect(() => {
+    chrome.runtime.onMessage.addListener(function (message) {
+      if (message.generated) {
+        setGenerated(generatePassword(message.generated.enty));
+      }
     });
-  }
+  }, []);
 
   function handleGenerate() {
-    console.log("generate");
     setGenerateShake(true);
-    setShowGenerated(true);
-    // send message type:"generate"
+    chrome.runtime.sendMessage({ type: "generate" });
     setTimeout(() => {
       setGenerateShake(false);
     }, 300);
@@ -90,202 +85,92 @@ export function Home() {
     }, 300);
   }
 
-  function handleCloseGenerated() {
-    // don't forget to set generated pass state to ''
-    setShowGenerated(false);
+  function handleCopy() {
+    setShowCopied(true);
+    navigator.clipboard.writeText(generated);
+    setTimeout(() => {
+      setShowCopied(false);
+    }, 2500);
   }
 
   return (
-    <div className="flex-col mt-4 mb-8">
-      <p className="mb-3">knox, your web2 password vault</p>
-      <div className="my-1 border-t border-black w-full"></div>
-
-      <div className="flex hover:bg-blue-300">
-        <button
-          onClick={handleGenerate}
-          className="w-full flex py-2"
-          title="generate password"
-        >
-          <div className={`px-1 ${generateShake ? "shakeX" : null}`}>
-            {generateIcon()}
-          </div>
-          <p className="">Generate password</p>
-        </button>
-      </div>
-
-      <div className="flex hover:bg-blue-300">
-        <button
-          onClick={handleRefresh}
-          className="w-full flex py-2"
-          title="refresh"
-        >
-          <div className={`px-1 ${spin ? "refresh" : null}`}>
-            {refreshIcon()}
-          </div>
-          <p style={{ transform: "translateY(1px)" }} className="">
-            Refresh
-          </p>
-        </button>
-      </div>
-
-      <div className="flex hover:bg-blue-300">
-        <button
-          onClick={handleOpenKnox}
-          className="w-full flex py-2"
-          title="open knox"
-        >
-          <div className={"px-1"}>{expandIcon()}</div>
-          <p className="">Expand view</p>
-        </button>
-      </div>
-
-      <div className="flex hover:bg-blue-300">
-        <button onClick={handleLock} className="w-full flex py-2" title="lock">
-          <div className={`px-1 ${lockShake ? "lockShake" : null}`}>
-            {lockIcon()}
-          </div>
-          <p className="">Lock</p>
-        </button>
-      </div>
-
-      <div className="my-1 border-t border-black w-full"></div>
-
-      {showGenerated && (
-        <div className="flex justify-center">
-          {/* TODO: need to set up state for generated password, however that gets made */}
-          <button className="flex">
-            generated123
-            <div>{copyIcon()}</div>
-          </button>
-          <button onClick={handleCloseGenerated}>{closeIcon()}</button>
-        </div>
-      )}
-      <>
-        {/* reference - this is old 4 button design */}
-        {/* <div className="flex p-2 justify-around">
-          {/* TODO: wire up the generate password button
-          {/* TODO: generated password saves to state, persists until cleared or suggestion set. render component underneath buttons with generated and clear button and copy button
+    <div className="flex flex-col mt-4 min-h-[220px]">
+      <p className="mb-3">knox, your password vault</p>
+      <div className="border-t border-black mt-1 w-full bg-whiteSmoke">
+        <div className="flex hover:bg-timberwolf">
           <button
             onClick={handleGenerate}
-            className="border border-black rounded w-[50px] hover:scale-125 p-1 shadow "
+            className="w-full flex py-2"
             title="generate password"
           >
-            <div className={`${generateShake ? "shakeX" : null}`}>
+            <div className={`px-1 ${generateShake ? "shakeX" : null}`}>
               {generateIcon()}
             </div>
+            <p className="">Generate password</p>
           </button>
+        </div>
 
+        <div className="flex hover:bg-timberwolf">
           <button
             onClick={handleRefresh}
-            className="border border-black rounded w-[50px] hover:scale-125 p-1"
-            title="get latest"
+            className="w-full flex py-2"
+            title="refresh"
           >
-            <div className={`${spin ? "refresh" : null}`}>{refreshIcon()}</div>
+            <div className={`px-1 ${spin ? "refresh" : null}`}>
+              {refreshIcon()}
+            </div>
+            <p style={{ transform: "translateY(1px)" }} className="">
+              Refresh
+            </p>
           </button>
+        </div>
 
+        <div className="flex hover:bg-timberwolf">
           <button
             onClick={handleOpenKnox}
-            className="border border-black rounded w-[50px] hover:scale-125 p-1"
-            title="open app"
+            className="w-full flex py-2"
+            title="open knox"
           >
-            {expandIcon()}
+            <div className={"px-1"}>{expandIcon()}</div>
+            <p className="">Expand view</p>
           </button>
+        </div>
 
+        <div className="flex hover:bg-timberwolf">
           <button
-            onClick={handleLogOut}
-            className="border border-black rounded w-[50px] hover:scale-125 p-1"
-            title="log out"
+            onClick={handleLock}
+            className="w-full flex py-2"
+            title="lock"
           >
-            <div className={`${logoutShake ? "logoutShake" : null}`}>
+            <div className={`px-1 ${lockShake ? "lockShake" : null}`}>
               {lockIcon()}
             </div>
+            <p className="">Lock</p>
           </button>
-        </div> */}
-        {/* <div>
-            <p>testing buttons</p>
-            {/* // TODO: getState button only for testing
-            <button
-              style={{ width: "65%" }}
-              onClick={() => sendMessage({ type: "stateTest" })}
-            >
-              log state in bg
-            </button>
-            <button
-              style={{ width: "65%" }}
-              onClick={async () =>
-                sendMessage({
-                  type: "default",
-                  message: await getStorage(["vault", "shipCreds"]),
-                })
-              }
-            >
-              log storage - vault, shipCreds
-            </button>
-            <button
-              style={{ width: "65%" }}
-              onClick={() => {
-                chrome.storage.local.remove("shipCreds");
-                chrome.storage.local.remove("vault");
-              }}
-            >
-              remove url shipCreds and vault from storage
-            </button>
-            <button
-              style={{ width: "65%" }}
-              onClick={() => sendMessage({ type: "clearSecretTest" })}
-            >
-              clear secret
-            </button>
-          </div> */}
-        {suggestion && (
-          <>
-            <p>save this entry?</p>
-            <div style={{ width: "95%" }}>
-              {/* TODO: this should be a form in case it needs to be edited */}
-              <div>
-                <label>website:</label>
-                <input
-                  name={"website"}
-                  value={sugForm.website}
-                  onChange={handleInput}
-                ></input>
-              </div>
-              <div>
-                <label>username:</label>
-                <input
-                  name={"username"}
-                  value={sugForm.username}
-                  onChange={handleInput}
-                ></input>
-              </div>
-              <div>
-                <label>password:</label>
-                <input
-                  name={"password"}
-                  type={"password"}
-                  onChange={handleInput}
-                  value={sugForm.password}
-                ></input>
-              </div>
-              {/* TODO: wire up this button */}
+        </div>
+      </div>
+
+      {generated && (
+        <div className="border-t border-black w-full p-1 text-right pb-3">
+          <button className="mt-1 mr-1" onClick={() => setGenerated("")}>
+            {closeIcon()}
+          </button>
+          <div className="flex flex-col items-center justify-center">
+            <div className="flex justify-center items-center w-full">
+              <button className="hover:text-base" onClick={handleCopy}>
+                {generated}
+              </button>
+              {showCopied && <span className="mx-2">{copyIcon()}</span>}
             </div>
-            <button onClick={() => console.log("save suggestion entry")}>
-              save
-            </button>
-            <button
-              onClick={() => {
-                sendMessage({
-                  type: "setSuggestion",
-                  suggestion: null,
-                });
-                setSuggestion(false);
-              }}
-            >
-              clear
-            </button>
-          </>
-        )}
-      </>
+            <p>click to copy</p>
+          </div>
+        </div>
+      )}
+
+      {/* TODO finish suggestion  */}
+      <div className="hidden">
+        <Suggestion />
+      </div>
     </div>
   );
 }

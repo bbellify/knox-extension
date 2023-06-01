@@ -18,6 +18,7 @@ function App() {
     chrome.runtime.sendMessage({ type: "getState" }, async (res) => {
       const { api, secret } = res.state;
       const { shipCreds } = await getStorage("shipCreds");
+
       setNavSet(true);
 
       if (!shipCreds?.url || !shipCreds?.ship || !shipCreds?.code) {
@@ -34,9 +35,9 @@ function App() {
     <div className="App">
       {!navSet ? (
         <>
-          {/* TODO: spinner here? */}
-          <p>~</p>
-          <button onClick={() => setNavSet(true)}>test to setNav</button>
+          <div className="flex h-40 justify-center items-center">
+            <p className="animate-spin">~</p>
+          </div>
         </>
       ) : (
         <Routes>
