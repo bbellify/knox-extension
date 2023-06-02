@@ -64,7 +64,7 @@ async function messageListener() {
         break;
       }
       case "generate": {
-        const generated = await getEnty();
+        getEnty();
         break;
       }
       default:

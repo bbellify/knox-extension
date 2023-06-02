@@ -13,15 +13,12 @@ export function Setup() {
   const [step, setStep] = useState(1);
   const [urlError, setUrlError] = useState("");
   const [shipError, setShipError] = useState("");
-  const [urlForm, setUrlForm] = useState("http://localhost:80");
-  // const [urlForm, setUrlForm] = useState("");
+  const [urlForm, setUrlForm] = useState("");
   const [shipForm, setShipForm] = useState({
-    // ship: "",
-    // code: "",
-    ship: "~bud",
-    code: "lathus-worsem-bortem-padmel",
+    ship: "",
+    code: "",
   });
-  const [secretForm, setSecretForm] = useState("test");
+  const [secretForm, setSecretForm] = useState("");
   const [api, setApi] = useState(null);
 
   useEffect(() => {

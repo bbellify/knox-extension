@@ -4,11 +4,6 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
-  // entry: "./src/index.js",// entry: "./src/index.js",
-  // output: {
-  //   path: path.resolve(__dirname, "dist"),
-  //   filename: "[name].js",
-  // },
   entry: {
     popup: path.join(__dirname, "src/popup.js"),
     content: path.join(__dirname, "src/content.js"),
@@ -32,9 +27,15 @@ module.exports = {
       },
       {
         test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader, "css-loader"],
+        use: ["style-loader", "css-loader", "postcss-loader"],
+        exclude: /\.module\.css$/,
       },
     ],
+  },
+  resolve: {
+    fallback: {
+      crypto: false,
+    },
   },
   plugins: [
     new HtmlWebpackPlugin({

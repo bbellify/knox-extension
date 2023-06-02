@@ -33,6 +33,11 @@ module.exports = {
       },
     ],
   },
+  resolve: {
+    fallback: {
+      crypto: false,
+    },
+  },
   plugins: [
     new HtmlWebpackPlugin({
       template: "./public/index.html",
