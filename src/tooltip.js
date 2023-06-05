@@ -1,8 +1,8 @@
 import { createPopper } from "@popperjs/core";
 import { aesDecrypt } from "./utils";
 
-export function addTooltipCSS() {
-  const style = document.createElement("style");
+export function addTooltipCSS(docToUse) {
+  const style = docToUse.createElement("style");
   style.id = "knox-style";
 
   style.innerHTML = `
@@ -80,24 +80,24 @@ export function addTooltipCSS() {
         }
       }
     `;
-  document.head.appendChild(style);
+  docToUse.head.appendChild(style);
 }
 
-export function addTooltip(entries, secret, usernameField) {
-  addTooltipCSS();
+export function addTooltip(entries, secret, usernameField, docToUse) {
+  addTooltipCSS(docToUse);
   if (!secret) return handleNoSecret();
 
-  const tooltip = prepTooltip();
+  const tooltip = prepTooltip(docToUse);
 
   entries.forEach((entry, i) => {
     const username = aesDecrypt(entry.username, secret);
     const password = aesDecrypt(entry.password, secret);
 
-    const entryWrapper = document.createElement("div");
+    const entryWrapper = docToUse.createElement("div");
     entryWrapper.id = `entry-wrapper-${i}`;
-    const usernameP = document.createElement("p");
+    const usernameP = docToUse.createElement("p");
     usernameP.id = `tooltip-username-${i}`;
-    const passwordP = document.createElement("input");
+    const passwordP = docToUse.createElement("input");
     passwordP.id = `tooltip-pass-${i}`;
     passwordP.type = "password";
     passwordP.disabled = true;
@@ -110,14 +110,15 @@ export function addTooltip(entries, secret, usernameField) {
     tooltip.appendChild(entryWrapper);
     entryWrapper.addEventListener("click", () => {
       if (usernameField) usernameField.value = username;
-      if (getPasswordInput()) getPasswordInput().value = password;
-      clearTooltip();
+      if (getPasswordInput(docToUse))
+        getPasswordInput(docToUse).value = password;
+      clearTooltip(docToUse);
     });
   });
 
-  const divider = document.createElement("div");
+  const divider = docToUse.createElement("div");
   divider.id = "divider";
-  const tildy = document.createElement("p");
+  const tildy = docToUse.createElement("p");
   tildy.innerHTML = "~";
   tildy.id = "tildy";
   tooltip.appendChild(divider);
@@ -133,21 +134,27 @@ export function addTooltip(entries, secret, usernameField) {
     },
   });
 
-  const allTips = Array.from(document.getElementsByClassName("knox-tooltip"));
+  const allTips = Array.from(docToUse.getElementsByClassName("knox-tooltip"));
   allTips.forEach((tip, i) => {
     return i !== allTips.length - 1 ? tip.remove() : null;
   });
 }
 
-export function addNoSecretTooltip(entries, shipCreds, usernameField, url) {
-  addTooltipCSS();
+export function addNoSecretTooltip(
+  entries,
+  shipCreds,
+  usernameField,
+  url,
+  docToUse
+) {
+  addTooltipCSS(docToUse);
 
-  const tooltip = prepTooltip();
-  const inputWrapper = document.createElement("div");
+  const tooltip = prepTooltip(docToUse);
+  const inputWrapper = docToUse.createElement("div");
   inputWrapper.id = "input-wrapper";
-  const secretInput = document.createElement("input");
+  const secretInput = docToUse.createElement("input");
   secretInput.id = "secret-input";
-  const submitSecret = document.createElement("button");
+  const submitSecret = docToUse.createElement("button");
   submitSecret.id = "submitSecret";
   submitSecret.innerText = "set secret";
   tooltip.appendChild(inputWrapper);
@@ -171,9 +178,9 @@ export function addNoSecretTooltip(entries, shipCreds, usernameField, url) {
         },
       });
       if (usernameField) {
-        addTooltip(entries, secretInput.value, usernameField);
+        addTooltip(entries, secretInput.value, usernameField, docToUse);
         return usernameField.addEventListener("click", () => {
-          addTooltip(entries, secretInput.value, usernameField);
+          addTooltip(entries, secretInput.value, usernameField, docToUse);
         });
       }
     } else {
@@ -196,26 +203,26 @@ export function addNoSecretTooltip(entries, shipCreds, usernameField, url) {
     },
   });
 
-  const allTips = Array.from(document.getElementsByClassName("knox-tooltip"));
+  const allTips = Array.from(docToUse.getElementsByClassName("knox-tooltip"));
   allTips.reverse().forEach((tip, i) => {
     return i !== allTips.length - 1 ? tip.remove() : null;
   });
 }
 
-export function clearTooltip() {
-  const tooltip = document.getElementById("tooltip");
-  const style = document.getElementById("knox-style");
+export function clearTooltip(docToUse) {
+  const tooltip = docToUse.getElementById("tooltip");
+  const style = docToUse.getElementById("knox-style");
   if (tooltip) tooltip.remove();
   if (style) style.remove();
   return;
 }
 
-function prepTooltip() {
-  const tooltip = document.createElement("div");
+function prepTooltip(docToUse) {
+  const tooltip = docToUse.createElement("div");
   tooltip.role = "tooltip";
   tooltip.id = "tooltip";
   tooltip.className = "knox-tooltip";
-  document.body.appendChild(tooltip);
+  docToUse.body.appendChild(tooltip);
   return tooltip;
 }
 
@@ -224,9 +231,9 @@ function handleNoSecret() {
   console.log("no secret in tooltip but there should be");
 }
 
-function getPasswordInput() {
+function getPasswordInput(docToUse) {
   let passwordField;
-  const inputElements = document.getElementsByTagName("input");
+  const inputElements = docToUse.getElementsByTagName("input");
   for (let i = 0; i < inputElements.length; i++) {
     if (inputElements[i].type === "password" && !inputElements[i].disabled) {
       passwordField = inputElements[i];

@@ -7,14 +7,42 @@ document.addEventListener("click", (e) => {
     e.target.id !== "submitSecret" &&
     e.target.id !== "tooltip"
   )
-    clearTooltip();
+    clearTooltip(document);
 });
 
 const location = window.location.toString();
 // use website for saving suggestion
 // const website = new URL(location).hostname.replace("www.", "");
 
-function init() {
+const observer = new MutationObserver(function () {
+  const iframes = document.querySelectorAll("iframe");
+  if (iframes.length) {
+    iframes.forEach((iframe) => {
+      if (iframe.contentDocument) {
+        init(iframe.contentDocument);
+        iframe.contentDocument.addEventListener("click", (e) => {
+          if (
+            e.target.nodeName !== "INPUT" &&
+            e.target.id !== "submitSecret" &&
+            e.target.id !== "tooltip"
+          )
+            clearTooltip(iframe.contentDocument);
+        });
+      }
+    });
+  }
+});
+
+const config = {
+  attributes: true,
+  childList: true,
+  characterData: true,
+};
+
+// Pass in the target node, as well as the observer options
+observer.observe(document.body, config);
+
+function init(docToUse) {
   // eslint-disable-next-line no-undef
   chrome.runtime.sendMessage({ type: "getState" }, (res) => {
     const { secret } = res.state;
@@ -31,7 +59,7 @@ function init() {
         );
 
         if (entries.length) {
-          document.addEventListener("click", (e) => {
+          docToUse.addEventListener("click", (e) => {
             if (
               e.target.tagName === "INPUT" &&
               e.target.id !== "secret-input"
@@ -43,14 +71,26 @@ function init() {
                 e.target.type === "username"
               ) {
                 if (!secret) {
-                  addNoSecretTooltip(entries, shipCreds, e.target, url);
+                  addNoSecretTooltip(
+                    entries,
+                    shipCreds,
+                    e.target,
+                    url,
+                    docToUse
+                  );
                   return e.target.addEventListener("click", () =>
-                    addNoSecretTooltip(entries, shipCreds, e.target, url)
+                    addNoSecretTooltip(
+                      entries,
+                      shipCreds,
+                      e.target,
+                      url,
+                      docToUse
+                    )
                   );
                 } else {
-                  addTooltip(entries, secret, e.target);
+                  addTooltip(entries, secret, e.target, docToUse);
                   return e.target.addEventListener("click", () => {
-                    addTooltip(entries, secret, e.target);
+                    addTooltip(entries, secret, e.target, docToUse);
                   });
                 }
               }
@@ -65,7 +105,7 @@ function init() {
     });
   });
 }
-init();
+init(document);
 
 function handleNoEntry() {
   // TODO: remove this log
