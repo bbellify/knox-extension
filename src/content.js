@@ -70,6 +70,7 @@ function init(docToUse) {
                 e.target.type === "email" ||
                 e.target.type === "username"
               ) {
+                observer.disconnect();
                 if (!secret) {
                   addNoSecretTooltip(
                     entries,

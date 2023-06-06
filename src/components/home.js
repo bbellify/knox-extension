@@ -95,7 +95,7 @@ export function Home() {
 
   return (
     <div className="flex flex-col mt-4 min-h-[220px]">
-      <p className="mb-3">knox, your password vault</p>
+      <p className="mb-3">Knox - your password vault</p>
       <div className="border-t border-black mt-1 w-full bg-whiteSmoke">
         <div className="flex hover:bg-timberwolf">
           <button
