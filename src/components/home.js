@@ -96,7 +96,7 @@ export function Home() {
   return (
     <div className="flex flex-col mt-4 min-h-[220px]">
       <p className="mb-3">Knox - your password vault</p>
-      <div className="border-t border-black mt-1 w-full bg-whiteSmoke">
+      <div className="border-t border-b border-black mt-1 py-1 w-full bg-whiteSmoke">
         <div className="flex hover:bg-timberwolf">
           <button
             onClick={handleGenerate}
@@ -151,18 +151,26 @@ export function Home() {
       </div>
 
       {generated && (
-        <div className="border-t border-black w-full p-1 text-right pb-3">
-          <button className="mt-1 mr-1" onClick={() => setGenerated("")}>
-            {closeIcon()}
-          </button>
-          <div className="flex flex-col items-center justify-center">
-            <div className="flex justify-center items-center w-full">
-              <button className="hover:text-base" onClick={handleCopy}>
-                {generated}
-              </button>
-              {showCopied && <span className="mx-2">{copyIcon()}</span>}
+        <div className="flex w-full my-2">
+          <div className="flex-none w-[18px]"></div>
+          <div className="grow">
+            <div className="flex flex-col">
+              <div className="flex justify-center">
+                <button className="hover:text-base" onClick={handleCopy}>
+                  {generated}
+                </button>
+                {showCopied && <span className="flex ml-1">{copyIcon()}</span>}
+              </div>
+              <p>click to copy</p>
             </div>
-            <p>click to copy</p>
+          </div>
+          <div>
+            <button
+              className="flex-none w-[18px]"
+              onClick={() => setGenerated("")}
+            >
+              {closeIcon()}
+            </button>
           </div>
         </div>
       )}

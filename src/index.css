@@ -29,10 +29,10 @@ code {
 .App {
   text-align: center;
 }
-
+/* 
 .navDisabled {
   color: #9ca3af;
-}
+} */
 
 .shakeX {
   animation: shakeX 300ms;
@@ -44,6 +44,18 @@ code {
 
 .refresh {
   animation: refresh 500ms linear infinite;
+}
+
+.icons {
+  color: #3E547A;
+}
+
+.icons:hover {
+  color: #222F44;
+}
+
+.icons-disabled {
+  color: #9ca3af;
 }
 
 @keyframes shakeX {

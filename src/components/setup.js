@@ -152,7 +152,7 @@ export function Setup() {
   }
 
   return (
-    <div className="flex flex-col my-5 h-[250px] items-center justify-items-center w-[300px]">
+    <div className="flex flex-col my-5 pb-2 h-[250px] items-center justify-items-center w-[300px]">
       <p className="font-bold my-2">
         Welcome to Knox, your web2 password vault.
       </p>
@@ -202,29 +202,22 @@ export function Setup() {
               shake ? "shakeX border-red-400" : null
             }`}
           />
-          {/* {secretError && (
-            <p className="text-red-500 font-bold mt-2">{secretError}</p>
-          )} */}
         </div>
       )}
-      <div className="flex justify-center mt-2 pb-4">
+      <div className="flex mt-2">
         <button
           disabled={step === 1}
           onClick={handlePrevious}
-          className={`mr-2 w-[25px] ${
-            step === 1 ? "navDisabled" : "hover:scale-150"
-          }`}
+          className="mr-2 w-[25px]"
         >
-          {navPrev()}
+          {navPrev(step === 1)}
         </button>
         <button
           disabled={isNextDisabled()}
           onClick={handleNext}
-          className={`ml-2 w-[25px] ${
-            isNextDisabled() ? "navDisabled" : "hover:scale-150"
-          }`}
+          className="ml-2 w-[25px]"
         >
-          {navNext()}
+          {navNext(isNextDisabled())}
         </button>
       </div>
     </div>

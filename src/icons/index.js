@@ -1,8 +1,8 @@
-export function navPrev() {
+export function navPrev(disabled) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      className="ionicon"
+      className={disabled ? "icons-disabled" : "icons"}
       viewBox="0 0 512 512"
     >
       <title>previous</title>
@@ -18,11 +18,11 @@ export function navPrev() {
   );
 }
 
-export function navNext() {
+export function navNext(disabled) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      className="ionicon"
+      className={disabled ? "icons-disabled" : "icons"}
       viewBox="0 0 512 512"
     >
       <title>next</title>
