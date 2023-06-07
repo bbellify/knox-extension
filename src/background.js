@@ -2,7 +2,7 @@
 import { useStore } from "./store";
 import { setStorage, getStorage } from "./storage";
 import { scryVault, getEnty } from "./urbit";
-import { clearIcon, setSuggestionIcon, aesDecrypt } from "./utils";
+import { aesDecrypt, setBadge, clearBadge } from "./utils";
 
 async function init() {
   const state = useStore.getState();
@@ -51,8 +51,8 @@ async function messageListener() {
         if (message.suggestion.website === "phngmkdaejdfgjhdcddcmeniaddocbkc")
           return;
         state.setSuggestion(message.suggestion);
-        if (message.suggestion) setSuggestionIcon();
-        if (!message.suggestion) clearIcon();
+        if (message.suggestion) setBadge();
+        if (!message.suggestion) clearBadge();
         break;
       }
       case "scryVault": {

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { clearIcon } from "./utils";
+import { clearBadge } from "./utils";
 import { connectToShip, newApi, scryVault } from "./urbit";
 
 export const useStore = create((set, get) => ({
@@ -26,7 +26,7 @@ export const useStore = create((set, get) => ({
     // TODO: this timeout could be based on settings
     setTimeout(() => {
       set({ suggestion: null });
-      clearIcon();
+      clearBadge();
     }, 10000);
   },
   setShipCreds: (shipCreds) => {
