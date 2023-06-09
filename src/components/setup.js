@@ -196,6 +196,7 @@ export function Setup() {
           <p className="mb-2">Enter your Knox secret:</p>
           <input
             name="secret"
+            type="password"
             value={secretForm}
             onChange={handleSecretForm}
             className={`border border-black w-3/5 mb-2 px-3 py-1 ${

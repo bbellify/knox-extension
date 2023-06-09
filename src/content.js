@@ -14,7 +14,7 @@ const location = window.location.toString();
 // use website for saving suggestion
 // const website = new URL(location).hostname.replace("www.", "");
 
-const observer = new MutationObserver(function () {
+const observer = new MutationObserver(() => {
   const iframes = document.querySelectorAll("iframe");
   if (iframes.length) {
     iframes.forEach((iframe) => {
@@ -39,7 +39,6 @@ const config = {
   characterData: true,
 };
 
-// Pass in the target node, as well as the observer options
 observer.observe(document.body, config);
 
 function init(docToUse) {

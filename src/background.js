@@ -75,14 +75,16 @@ async function messageListener() {
   });
 }
 
-chrome.tabs.onUpdated.addListener((tab) => {
-  chrome.tabs.get(tab, async (current_tab_info) => {
-    if (!current_tab_info.url.includes("chrome://"))
-      if (current_tab_info.status === "complete") {
-        await chrome.scripting.executeScript({
-          files: ["content.js"],
-          target: { tabId: tab },
-        });
-      }
-  });
-});
+// reference - do I not even need this?
+//
+// chrome.tabs.onUpdated.addListener((tab) => {
+//   chrome.tabs.get(tab, async (current_tab_info) => {
+//     if (current_tab_info.status === "complete" && current_tab_info.active) {
+//       console.log("in complete", current_tab_info);
+//       return await chrome.scripting.executeScript({
+//         files: ["content.js"],
+//         target: { tabId: tab },
+//       });
+//     }
+//   });
+// });

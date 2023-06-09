@@ -154,6 +154,7 @@ export function addNoSecretTooltip(
   inputWrapper.id = "input-wrapper";
   const secretInput = docToUse.createElement("input");
   secretInput.id = "secret-input";
+  secretInput.type = "password";
   const submitSecret = docToUse.createElement("button");
   submitSecret.id = "submitSecret";
   submitSecret.innerText = "set secret";

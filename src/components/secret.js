@@ -54,6 +54,7 @@ export function Secret() {
         <p>Log in to Knox:</p>
         <input
           name="secret"
+          type="password"
           value={secret}
           onChange={handleInput}
           className={`border border-black w-3/5 mt-2 mb-1 px-3 py-1 ${
