@@ -11,4 +11,4 @@ To run this extension:
 6. Click "Load unpacked" and choose the /dist directory you build on step 3. This should be inside the project root directory.
 
 To Do:
-[] Offer to save new website entries
+- [] Offer to save new website entries

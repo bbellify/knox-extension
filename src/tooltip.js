@@ -97,13 +97,13 @@ export function addTooltip(entries, secret, usernameField, docToUse) {
     entryWrapper.id = `entry-wrapper-${i}`;
     const usernameP = docToUse.createElement("p");
     usernameP.id = `tooltip-username-${i}`;
-    const passwordP = docToUse.createElement("input");
+    const passwordP = docToUse.createElement("p");
     passwordP.id = `tooltip-pass-${i}`;
     passwordP.type = "password";
     passwordP.disabled = true;
 
     usernameP.textContent = username;
-    passwordP.value = password;
+    passwordP.textContent = "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
 
     entryWrapper.appendChild(usernameP);
     entryWrapper.appendChild(passwordP);
